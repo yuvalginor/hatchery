@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Otherwise git sends the job's GITHUB_TOKEN, which cannot see the new repo.
+          persist-credentials: false
 
       - name: Resolve and validate name
         run: |
