@@ -24,11 +24,12 @@ I build the things I want and need, and I use them from day one. I improve them 
 ## Core rules
 
 - Free tier only. Never enter payment details or start anything billable. If a step needs payment details or a paid plan, stop and raise it to me. Upgrade per project only if I ask.
-- AI features: LLM APIs usually have no free tier. Use a free option when one fits. Otherwise flag it to me before building.
+- AI features are a per-project decision. Options: a free tier (Gemini API, Cloudflare Workers AI, others), an MCP connector so my chat agent works with the project's data (no UI, so only sometimes right), or a paid API. Present the options and let me choose. Never start a paid API without my OK.
 - One private repo per project. Never a monorepo. Public only if I ask.
 - Every project has a visual frontend where I see results. Even a research project gets a dashboard that communicates findings: charts, tables, a plain-language summary. Results never live only in a chat reply or a text file.
 - Every project ends with two things: the artifact, ready wherever it runs, and that visual frontend showing it works: what was built, how it was verified, screenshots where relevant, how to run it. Define both before building.
 - Web first. HTML/CSS/JS (TypeScript, Vite) is the default for everything, because it's generic, scales from tiny to large, and ports to other targets later. Deviate only with a stated reason.
+- Static frontend. The frontend is always static files served from the CDN, even when there is a backend. Deviate only for a material reason, logged in DECISIONS.md.
 - Climb the ladder only when required. Every added service needs a stated reason in the README.
 - No per-project dashboard work, ever. All provisioning goes through account-level tokens in the cloud environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEON_API_KEY, GH_TOKEN.
 
@@ -44,7 +45,9 @@ I build the things I want and need, and I use them from day one. I improve them 
 - Shareable by default: Open Graph tags, a social preview image, a clean title and description. Full SEO when the project is public-facing. Keep SEO proportionate: AI search answers informational queries directly, so don't over-invest.
 - Downloadable later: build web apps as installable PWAs, and keep the code structured so wrapping it as a native app (Capacitor for mobile, Tauri for desktop) needs no rewrite.
 - Hosting: always deploy. Private projects sit behind Cloudflare Access, plus noindex (robots.txt Disallow, noindex meta tag, X-Robots-Tag header). Deploy to a free workers.dev URL while in progress. Promote to a subdomain of example.com (e.g. app-name.example.com) when I say it's ready to share, or to its own domain if I give one.
-- Privacy: the deployed output must be clean. Secrets stay server-side. Add an automated check that scans the build output before every deploy and fails the deploy on bad practice: secrets, API keys, tokens, private IP addresses, internal hostnames, stray emails. It is a sanity check, not a guarantee.
+- Commit identity: every commit uses my name and my GitHub no-reply email (`<id>+<login>@users.noreply.github.com`), so it counts as my contribution and never exposes my real email. Set it per repo before the first commit. This includes commits made by workflows.
+- Analytics: Cloudflare Web Analytics (cookieless) whenever relevant, by default on public projects.
+- Privacy: only an allowlist ships. The deploy uploads the build output folder and nothing else. Docs, tests, notes and configs never ship. Secrets stay server-side. Add an automated check that scans the build output before every deploy and fails the deploy on bad practice: secrets, API keys, tokens, private IP addresses, internal hostnames, stray emails. It is a sanity check, not a guarantee.
 - Registry: add every project to PROJECTS.md in this launcher repo. One row each: name, repo, URL, public or private, services used, status.
 
 ## Scaffold and conventions sync
@@ -118,12 +121,10 @@ When done, give me a short summary and point me to SETUP.md.
 - Pre-commit hook must be committed (`core.hooksPath`) so fresh clones get it.
 - The Karpathy skill is a community repo. Pin a commit. Projects threads do not load repo skills.
 - Minimum test floor per project type.
-- Commit identity: commits must use my GitHub no-reply email so they count as my contributions. The create-project workflow currently commits as "hatchery" and needs fixing.
 - Branch previews: branches deploy to a preview URL, main is production. Decide who merges to main.
 - Feedback from projects to hatchery: PR when attached, inbox file otherwise. Keeps PROJECTS.md and the tree current.
 - Verifying a deploy behind Access needs an Access service token.
 - The workers.dev account subdomain is shared by all projects. Pick a neutral one.
 - Vite sourcemaps must be off or caught by the privacy scan.
 - Zero Trust onboarding may ask for a card.
-- Cookieless analytics for public projects: pending.
-- AI for personal projects: Claude subscription can't power apps (API key only). A project can expose an MCP connector so my Claude chat works with its data. Gemini API free tier and Workers AI free allowance to verify.
+- Verify the free AI options: Gemini API free tier limits and data use, Workers AI daily allowance. A Claude subscription can't power apps; that needs an API key.

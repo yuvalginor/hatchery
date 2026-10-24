@@ -53,8 +53,12 @@ jobs:
       - name: Export folder to new repo
         if: hashFiles(format('export/{0}/**', env.NAME)) != ''
         run: |
-          git config user.name "hatchery"
-          git config user.email "hatchery@users.noreply.github.com"
+          # Commit as the token owner's no-reply identity so commits count as their contributions.
+          LOGIN=$(gh api user --jq .login)
+          ID=$(gh api user --jq .id)
+          NAME_FULL=$(gh api user --jq '.name // .login')
+          git config user.name "$NAME_FULL"
+          git config user.email "${ID}+${LOGIN}@users.noreply.github.com"
           git subtree split --prefix="export/$NAME" -b export-branch
           git push "https://x-access-token:${GH_TOKEN}@github.com/$OWNER/$NAME.git" export-branch:main
           echo "Exported export/$NAME to $OWNER/$NAME main"
