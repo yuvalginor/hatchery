@@ -97,3 +97,16 @@ When done, give me a short summary and point me to SETUP.md.
 - Pre-commit hook must be committed (`core.hooksPath`) so fresh clones get it.
 - The Karpathy skill is a community repo. Pin a commit. Projects threads do not load repo skills.
 - Minimum test floor per project type.
+
+From the conventions review, to decide:
+- Adopt: commit identity set to the GitHub no-reply email in every repo. Privacy scan also covers repo tree and commit authors before a repo goes public.
+- Adopt: branch previews. Branches deploy to a preview URL, main is production. Decide who merges to main.
+- Adopt: a GitHub template repo for the scaffold, so creation is one `generate` call.
+- Adopt: a way for project sessions to feed back to hatchery (PR when attached, inbox file otherwise). Keeps PROJECTS.md and the tree current.
+- Adopt: versioned saved data with migrations and fixture tests.
+- Adopt: noindex headers as a second layer behind Access.
+- Gap: verifying a deploy behind Access needs an Access service token.
+- Gap: the workers.dev account subdomain is shared by all projects. Pick a neutral one.
+- Gap: Vite sourcemaps must be off or caught by the privacy scan.
+- Check: Zero Trust onboarding may ask for a card.
+- Push back: no self-updating hooks that run launcher code in every project.
