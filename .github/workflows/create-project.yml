@@ -20,6 +20,10 @@ on:
         description: Template repo in this account, or "none" for an empty repo.
         required: false
         default: hatchery-template
+      is_template:
+        description: Mark the repo as a template. Needs template "none". Also marks an existing repo.
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -36,6 +40,7 @@ jobs:
       NAME: ${{ inputs.name }}
       DESCRIPTION: ${{ inputs.description }}
       TEMPLATE: ${{ inputs.template }}
+      IS_TEMPLATE: ${{ inputs.is_template }}
     steps:
       - name: Create repo
         run: |
@@ -48,6 +53,18 @@ jobs:
           printf '%s' "$NAME" | grep -Eq '^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$' \
             || fail "Invalid name '$NAME'. Use 1 to 32 lowercase letters, digits and dashes; no dash at either end."
           case "$NAME" in *--*) fail "Invalid name '$NAME'. No double dashes." ;; esac
+
+          # Template repos: create if missing, then mark. The GitHub proxy blocks sessions from repo settings.
+          if [ "$IS_TEMPLATE" = "true" ]; then
+            [ "$TEMPLATE" = "none" ] || fail "is_template needs template \"none\"."
+            gh api "repos/$OWNER/$NAME" >/dev/null 2>&1 \
+              || gh api -X POST user/repos -f name="$NAME" -f description="$DESCRIPTION" -F private=true >/dev/null \
+              || fail "Creating $OWNER/$NAME failed. Check HATCHERY_PAT permissions (SETUP.md)."
+            gh api -X PATCH "repos/$OWNER/$NAME" -F is_template=true >/dev/null \
+              || fail "Marking $OWNER/$NAME as a template failed. Check HATCHERY_PAT permissions (SETUP.md)."
+            echo "::notice title=template::https://github.com/$OWNER/$NAME"
+            exit 0
+          fi
 
           if gh api "repos/$OWNER/$NAME" >/dev/null 2>&1; then
             fail "Repo $OWNER/$NAME already exists. Pick another name."
