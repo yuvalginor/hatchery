@@ -42,6 +42,9 @@ jobs:
       - name: Set secret
         run: |
           fail() { echo "::error title=project-secret::$1"; exit 1; }
+          # why: gh's own last error line, such as "Resource not accessible by personal access token (HTTP 403)".
+          api() { gh api "$@" 2>"$RUNNER_TEMP/gh.err"; }
+          why() { tail -n 1 "$RUNNER_TEMP/gh.err"; }
 
           [ -n "$GH_TOKEN" ] || fail "Secret HATCHERY_PAT is not set on hatchery. See SETUP.md."
           printf '%s' "$REPO" | grep -Eq '^[a-z0-9][a-z0-9-]{0,99}$' || fail "Invalid repo name '$REPO'."
@@ -49,16 +52,16 @@ jobs:
           [ "$REPO" != "$THIS_REPO" ] || fail "Refusing to set secrets on $THIS_REPO."
           printf '%s' "$SECRET" | grep -Eq '^[A-Z_][A-Z0-9_]{0,99}$' || fail "Invalid secret name '$SECRET'. Use A-Z, 0-9 and _."
           case "$SECRET" in GITHUB_*) fail "Secret names cannot start with GITHUB_." ;; esac
-          gh api "repos/$OWNER/$REPO" >/dev/null 2>&1 || fail "Repo $OWNER/$REPO not found or not readable with HATCHERY_PAT."
+          api "repos/$OWNER/$REPO" >/dev/null || fail "Repo $OWNER/$REPO not readable with HATCHERY_PAT ($(why))."
 
           if [ -z "$SEALED" ]; then
-            KEY=$(gh api "repos/$OWNER/$REPO/actions/secrets/public-key" --jq '"key_id=\(.key_id) key=\(.key)"') \
-              || fail "Reading the public key of $OWNER/$REPO failed. Check HATCHERY_PAT permissions (SETUP.md)."
+            KEY=$(api "repos/$OWNER/$REPO/actions/secrets/public-key" --jq '"key_id=\(.key_id) key=\(.key)"') \
+              || fail "Reading the public key of $OWNER/$REPO failed ($(why)). HATCHERY_PAT needs Secrets read and write (SETUP.md)."
             echo "::notice title=public-key::$KEY"
             exit 0
           fi
 
           [ -n "$KEY_ID" ] || fail "key_id is required with sealed."
-          gh api -X PUT "repos/$OWNER/$REPO/actions/secrets/$SECRET" -f encrypted_value="$SEALED" -f key_id="$KEY_ID" >/dev/null \
-            || fail "Setting $SECRET on $OWNER/$REPO failed. The key may have rotated: run step 1 again."
+          api -X PUT "repos/$OWNER/$REPO/actions/secrets/$SECRET" -f encrypted_value="$SEALED" -f key_id="$KEY_ID" >/dev/null \
+            || fail "Setting $SECRET on $OWNER/$REPO failed ($(why)). If the key rotated, run step 1 again."
           echo "::notice title=secret-set::$SECRET on $OWNER/$REPO"
