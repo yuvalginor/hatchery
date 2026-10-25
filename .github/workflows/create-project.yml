@@ -1,92 +1,64 @@
-# Creates a private project repo from hatchery-template.
-# A session dispatches it over the REST API, then attaches the new repo with add_repo.
-# Errors surface as annotations on the run, readable over the REST API.
-# Needs Actions secret HATCHERY_PAT (SETUP.md, step 6).
+# Sets an Actions secret on a project repo. The GitHub proxy blocks sessions from Actions secrets.
+# 1. Dispatch with repo and secret only. The run posts the repo's public key as a notice annotation.
+# 2. Seal the value with scripts/seal-secret.py and dispatch again with key_id and sealed.
+# The plaintext never leaves the session. Needs Actions secret HATCHERY_PAT (SETUP.md, step 6).
 
-name: create-project
-run-name: create-project ${{ inputs.name }}
+name: project-secret
+run-name: project-secret ${{ inputs.repo }} ${{ inputs.secret }}
 
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: Repo name. 1 to 32 characters, lowercase letters, digits and dashes.
+      repo:
+        description: Project repo name in this account.
         required: true
-      description:
-        description: One-line repo description.
+      secret:
+        description: Secret name, such as DATABASE_URL.
+        required: true
+      key_id:
+        description: Public key id from step 1. Empty for step 1.
         required: false
         default: ""
-      template:
-        description: Template repo in this account, or "none" for an empty repo.
+      sealed:
+        description: Base64 sealed value from scripts/seal-secret.py. Empty for step 1.
         required: false
-        default: hatchery-template
-      is_template:
-        description: Mark the repo as a template. Needs template "none". Also marks an existing repo.
-        type: boolean
-        default: false
+        default: ""
 
 permissions: {}
 
-concurrency:
-  group: create-project-${{ inputs.name }}
-
 jobs:
-  create:
+  secret:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ secrets.HATCHERY_PAT }}
       OWNER: ${{ github.repository_owner }}
-      NAME: ${{ inputs.name }}
-      DESCRIPTION: ${{ inputs.description }}
-      TEMPLATE: ${{ inputs.template }}
-      IS_TEMPLATE: ${{ inputs.is_template }}
+      THIS_REPO: ${{ github.event.repository.name }}
+      REPO: ${{ inputs.repo }}
+      SECRET: ${{ inputs.secret }}
+      KEY_ID: ${{ inputs.key_id }}
+      SEALED: ${{ inputs.sealed }}
     steps:
-      - name: Create repo
+      - name: Set secret
         run: |
-          fail() { echo "::error title=create-project::$1"; exit 1; }
+          fail() { echo "::error title=project-secret::$1"; exit 1; }
 
           [ -n "$GH_TOKEN" ] || fail "Secret HATCHERY_PAT is not set on hatchery. See SETUP.md."
-          gh api user --jq .login >/dev/null 2>&1 || fail "HATCHERY_PAT is invalid or expired. Replace it (SETUP.md)."
+          printf '%s' "$REPO" | grep -Eq '^[a-z0-9][a-z0-9-]{0,99}$' || fail "Invalid repo name '$REPO'."
+          # Never let a session overwrite hatchery's own secrets, HATCHERY_PAT included.
+          [ "$REPO" != "$THIS_REPO" ] || fail "Refusing to set secrets on $THIS_REPO."
+          printf '%s' "$SECRET" | grep -Eq '^[A-Z_][A-Z0-9_]{0,99}$' || fail "Invalid secret name '$SECRET'. Use A-Z, 0-9 and _."
+          case "$SECRET" in GITHUB_*) fail "Secret names cannot start with GITHUB_." ;; esac
+          gh api "repos/$OWNER/$REPO" >/dev/null 2>&1 || fail "Repo $OWNER/$REPO not found or not readable with HATCHERY_PAT."
 
-          # 32 characters leaves room for Preview names in the 63-character workers.dev label.
-          printf '%s' "$NAME" | grep -Eq '^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$' \
-            || fail "Invalid name '$NAME'. Use 1 to 32 lowercase letters, digits and dashes; no dash at either end."
-          case "$NAME" in *--*) fail "Invalid name '$NAME'. No double dashes." ;; esac
-
-          # Template repos: create if missing, then mark. The GitHub proxy blocks sessions from repo settings.
-          if [ "$IS_TEMPLATE" = "true" ]; then
-            [ "$TEMPLATE" = "none" ] || fail "is_template needs template \"none\"."
-            gh api "repos/$OWNER/$NAME" >/dev/null 2>&1 \
-              || gh api -X POST user/repos -f name="$NAME" -f description="$DESCRIPTION" -F private=true >/dev/null \
-              || fail "Creating $OWNER/$NAME failed. Check HATCHERY_PAT permissions (SETUP.md)."
-            gh api -X PATCH "repos/$OWNER/$NAME" -F is_template=true >/dev/null \
-              || fail "Marking $OWNER/$NAME as a template failed. Check HATCHERY_PAT permissions (SETUP.md)."
-            echo "::notice title=template::https://github.com/$OWNER/$NAME"
+          if [ -z "$SEALED" ]; then
+            KEY=$(gh api "repos/$OWNER/$REPO/actions/secrets/public-key" --jq '"key_id=\(.key_id) key=\(.key)"') \
+              || fail "Reading the public key of $OWNER/$REPO failed. Check HATCHERY_PAT permissions (SETUP.md)."
+            echo "::notice title=public-key::$KEY"
             exit 0
           fi
 
-          if gh api "repos/$OWNER/$NAME" >/dev/null 2>&1; then
-            fail "Repo $OWNER/$NAME already exists. Pick another name."
-          fi
-
-          if [ "$TEMPLATE" = "none" ]; then
-            gh api -X POST user/repos -f name="$NAME" -f description="$DESCRIPTION" -F private=true >/dev/null \
-              || fail "Creating $OWNER/$NAME failed. Check HATCHERY_PAT permissions (SETUP.md)."
-          else
-            gh api "repos/$OWNER/$TEMPLATE" --jq .is_template 2>/dev/null | grep -qx true \
-              || fail "Template $OWNER/$TEMPLATE is missing, not a template repo, or not readable with HATCHERY_PAT."
-            gh api -X POST "repos/$OWNER/$TEMPLATE/generate" \
-              -f owner="$OWNER" -f name="$NAME" -f description="$DESCRIPTION" -F private=true >/dev/null \
-              || fail "Generating $OWNER/$NAME from $TEMPLATE failed. Check HATCHERY_PAT permissions (SETUP.md)."
-            # Generation copies files in the background. Wait until main has a commit.
-            for _ in $(seq 1 30); do
-              gh api "repos/$OWNER/$NAME/commits?per_page=1" >/dev/null 2>&1 && break
-              sleep 2
-            done
-            gh api "repos/$OWNER/$NAME/commits?per_page=1" >/dev/null 2>&1 \
-              || fail "$OWNER/$NAME exists but has no commits after 60 seconds."
-          fi
-
-          echo "::notice title=created::https://github.com/$OWNER/$NAME"
-          echo "Created [$OWNER/$NAME](https://github.com/$OWNER/$NAME) from \`$TEMPLATE\`." >> "$GITHUB_STEP_SUMMARY"
+          [ -n "$KEY_ID" ] || fail "key_id is required with sealed."
+          gh api -X PUT "repos/$OWNER/$REPO/actions/secrets/$SECRET" -f encrypted_value="$SEALED" -f key_id="$KEY_ID" >/dev/null \
+            || fail "Setting $SECRET on $OWNER/$REPO failed. The key may have rotated: run step 1 again."
+          echo "::notice title=secret-set::$SECRET on $OWNER/$REPO"
