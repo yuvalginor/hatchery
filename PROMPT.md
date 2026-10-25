@@ -33,7 +33,20 @@ I build the things I want and need, and I use them from day one. I improve them 
 - Web first. HTML/CSS/JS (TypeScript, Vite) is the default for everything, because it's generic, scales from tiny to large, and ports to other targets later. Deviate only with a stated reason.
 - Static frontend. The frontend is always static files served from the CDN, even when there is a backend. Deviate only for a material reason, logged in DECISIONS.md.
 - Climb the ladder only when required. Every added service needs a stated reason in the README.
-- No per-project dashboard work, ever. All provisioning goes through account-level tokens: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEON_API_KEY in the cloud environment.
+- No per-project dashboard work, ever. All provisioning goes through account-level tokens.
+
+## Tokens and environments
+
+- One cloud environment, `hatchery-build`. Network: Limited, plus package managers, plus custom allowed domains `*.workers.dev` and `*.example.com` so sessions can check deployed sites.
+- Account tokens are network secrets, never env vars. The proxy attaches them outside the session, so a session can use them but never read them.
+  - Cloudflare token: host `api.cloudflare.com`, header `Authorization: Bearer`.
+  - Neon key: host `console.neon.tech`, header `Authorization: Bearer`.
+  - Access service token: hosts of deployed sites, headers `CF-Access-Client-Id` and `CF-Access-Client-Secret`. Lets sessions verify private deploys.
+- Plain env vars: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN=placeholder`, `NEON_API_KEY=placeholder`, `WRANGLER_SEND_METRICS=false`. The placeholders only make wrangler and neonctl run.
+- Sessions deploy with wrangler. Branches go to preview URLs, main to production. CI runs tests only.
+- No account token is ever stored in a project repo. A scheduled job that needs data gets a narrow per-project secret, such as its own database connection string.
+- Projects that crawl arbitrary websites run the crawler in their own GitHub Actions. The token-holding session only reads the collected data. Add an open-network environment only if this proves not enough.
+- Minimum token scopes. Cloudflare: Workers Scripts, D1, R2, Access apps and policies, Access service tokens (edit); Account Settings, User Details, Memberships (read); on the example.com zone only, Workers Routes and DNS if custom domains need it. Never billing, members or account settings edit. Set an expiry.
 - Repo creation (tested 2026-10-25): the session triggers hatchery's `create-project` workflow over the REST API. The workflow creates the private repo with the `HATCHERY_PAT` Actions secret. The session then attaches the new repo with the `add_repo` tool (access: push) and builds in it directly. No GitHub token ever enters a session. The cloud GitHub proxy blocks `POST /user/repos` and pushes to unattached repos whatever the token.
 
 ## Conventions, every project
@@ -95,7 +108,7 @@ When a project fits no branch: pick the closest branch, explain the choice in DE
    - Each token with the minimum permissions needed, including DNS, custom domains, Access. Where to find the account ID.
    - GitHub token type and scopes for creating private repos, setting secrets and releases. Making sure the Claude GitHub App has access to All repositories.
    - GitHub email privacy: keep my email private and block pushes that expose it.
-   - Configuring the Claude Code cloud environment: env vars, network access, setup script. Recommend whether I need two environments (a locked-down one for builds, an open one for data collection) and explain the trade-off. Check whether environments apply to all repos or get picked per session.
+   - Configuring the `hatchery-build` cloud environment: network access, allowed domains, network secrets, env vars, setup script. Environments are personal and picked per session.
    - A smoke test per branch I can run from my phone.
 
 ## Research and verification
@@ -113,8 +126,9 @@ When done, give me a short summary and point me to SETUP.md.
 ## Open questions (not part of the prompt yet)
 
 - Results of the repo-creation tests are on branches `test/results-a`, `test/results-b-c`, `test/results-d`. Test repos deleted.
-- Token storage: network secrets for Cloudflare and Neon instead of env vars. Pending the blast radius discussion.
-- One or two cloud environments.
+- Verify: the proxy's network secret replaces the placeholder `Authorization` header wrangler and neonctl send. Test with `wrangler whoami` and `neonctl me`.
+- Verify: whether a session can set a project repo's Actions secrets through the GitHub proxy.
+- Verify: whether Workers custom domains need zone DNS edit. Whether Neon offers keys narrower than the personal API key.
 - R2 may require a payment method on file.
 - Actions minutes: about 2,000 a month for private repos, macOS runners count 10x.
 - iOS needs a paid Apple developer account. Out of scope unless I ask?
@@ -123,7 +137,6 @@ When done, give me a short summary and point me to SETUP.md.
 - Minimum test floor per project type.
 - Branch previews: branches deploy to a preview URL, main is production. Decide who merges to main.
 - Feedback from projects to hatchery: PR when attached, inbox file otherwise. Keeps PROJECTS.md and the tree current.
-- Verifying a deploy behind Access needs an Access service token.
 - The workers.dev account subdomain is shared by all projects. Pick a neutral one.
 - Vite sourcemaps must be off or caught by the privacy scan.
 - Zero Trust onboarding may ask for a card.
