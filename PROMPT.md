@@ -8,6 +8,8 @@ I want a cloud build system for personal projects. I hand it ideas throughout th
 
 Autonomous means no manual steps in the flow. You create the repo, the Cloudflare resources, the backend and everything else yourself. It does not mean working without me. Ask when my input changes the outcome.
 
+One session per project. No Claude Code Projects: each project keeps its own clean context. Knowledge that applies across projects lives in hatchery's files (CLAUDE.md, DECISION-TREE.md, PROJECTS.md), not in a shared conversation.
+
 Reporting happens in the session itself and in the project's visual frontend. Claude's push notifications tell me when a session needs me. No GitHub issues for reporting.
 
 Projects may vary: web apps, dashboards, research and data analysis, experiments, scheduled jobs, mobile apps, desktop tools, and shapes I haven't thought of.
@@ -110,15 +112,14 @@ When done, give me a short summary and point me to SETUP.md.
 
 ## Open questions (not part of the prompt yet)
 
-- Front door: plain cloud sessions on hatchery, or a Claude Code Project on hatchery (one conversation, a thread per idea, shared memory). Plain sessions are proven. Test a Project next. Project threads do not load repo skills or settings; those come in as plugins.
-- Results of the repo-creation tests are on branches `test/results-a`, `test/results-b-c`, `test/results-d`. Test repos to delete when done: `hatchery-test-b1`, `hatchery-test-b2`, `hatchery-test-d`.
+- Results of the repo-creation tests are on branches `test/results-a`, `test/results-b-c`, `test/results-d`. Test repos deleted.
 - Token storage: network secrets for Cloudflare and Neon instead of env vars. Pending the blast radius discussion.
 - One or two cloud environments.
 - R2 may require a payment method on file.
 - Actions minutes: about 2,000 a month for private repos, macOS runners count 10x.
 - iOS needs a paid Apple developer account. Out of scope unless I ask?
 - Pre-commit hook must be committed (`core.hooksPath`) so fresh clones get it.
-- The Karpathy skill is a community repo. Pin a commit. Projects threads do not load repo skills.
+- The Karpathy skill is a community repo. Pin a commit.
 - Minimum test floor per project type.
 - Branch previews: branches deploy to a preview URL, main is production. Decide who merges to main.
 - Feedback from projects to hatchery: PR when attached, inbox file otherwise. Keeps PROJECTS.md and the tree current.
