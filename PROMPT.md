@@ -84,9 +84,10 @@ When a project fits no branch: pick the closest branch, explain the choice in DE
 1. CLAUDE.md: the launcher playbook. Kickoff questions, walking the decision tree, repo creation, build, provision, deploy, verify the frontend actually loads and works, update PROJECTS.md, report in the session.
 2. DECISION-TREE.md: the flowchart and branch notes.
 3. .claude/skills/: the vendored Karpathy guidelines skill.
-4. hatchery-template: the template repo. Lean. Don't template what's faster to generate.
-5. scripts/setup.sh: idempotent cloud environment setup. Installs wrangler, neonctl, gh, and whatever the branches need.
-6. SETUP.md: step-by-step for everything I do by hand, phone-friendly where possible:
+4. .github/workflows/create-project.yml: creates a project repo from hatchery-template on request from a session. A tested prototype is already in this repo; harden it (template generate, name checks, clear errors) rather than start over.
+5. hatchery-template: the template repo. Lean. Don't template what's faster to generate.
+6. scripts/setup.sh: idempotent cloud environment setup. Installs wrangler, neonctl, gh, and whatever the branches need.
+7. SETUP.md: step-by-step for everything I do by hand, phone-friendly where possible:
    - Signing up for Cloudflare and Neon.
    - Moving example.com DNS to Cloudflare without touching the site. It is hosted elsewhere and should stay there. Cover: exporting existing records from the current DNS provider, recreating them on Cloudflare with the the site host records set to DNS only, checking email records survive, switching nameservers, and verifying the site and its SSL still work after the switch.
    - Each token with the minimum permissions needed, including DNS, custom domains, Access. Where to find the account ID.
