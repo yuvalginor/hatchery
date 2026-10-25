@@ -31,7 +31,8 @@ I build the things I want and need, and I use them from day one. I improve them 
 - Web first. HTML/CSS/JS (TypeScript, Vite) is the default for everything, because it's generic, scales from tiny to large, and ports to other targets later. Deviate only with a stated reason.
 - Static frontend. The frontend is always static files served from the CDN, even when there is a backend. Deviate only for a material reason, logged in DECISIONS.md.
 - Climb the ladder only when required. Every added service needs a stated reason in the README.
-- No per-project dashboard work, ever. All provisioning goes through account-level tokens in the cloud environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEON_API_KEY, GH_TOKEN.
+- No per-project dashboard work, ever. All provisioning goes through account-level tokens: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEON_API_KEY in the cloud environment.
+- Repo creation (tested 2026-10-25): the session triggers hatchery's `create-project` workflow over the REST API. The workflow creates the private repo with the `HATCHERY_PAT` Actions secret. The session then attaches the new repo with the `add_repo` tool (access: push) and builds in it directly. No GitHub token ever enters a session. The cloud GitHub proxy blocks `POST /user/repos` and pushes to unattached repos whatever the token.
 
 ## Conventions, every project
 
@@ -108,11 +109,8 @@ When done, give me a short summary and point me to SETUP.md.
 
 ## Open questions (not part of the prompt yet)
 
-- Repo creation from a cloud session. The GitHub proxy limits API calls to the repos attached to the session. Candidate paths, untested:
-  - A: `GH_TOKEN` env var with `gh api -X POST /user/repos`. Unclear whether the proxy's repo scope applies to a token I supply.
-  - B: a `create-project` workflow in hatchery, triggered by the session over REST. A PAT stored as a hatchery Actions secret creates the repo. The session never holds the token.
-  - C: run hatchery as a Claude Code Project. Threads can add a repo to themselves mid-task if the Claude GitHub App covers it.
-  - Plan: one cloud session on hatchery tries A, B and C and reports what works.
+- Front door: plain cloud sessions on hatchery, or a Claude Code Project on hatchery (one conversation, a thread per idea, shared memory). Plain sessions are proven. Test a Project next. Project threads do not load repo skills or settings; those come in as plugins.
+- Results of the repo-creation tests are on branches `test/results-a`, `test/results-b-c`, `test/results-d`. Test repos to delete when done: `hatchery-test-b1`, `hatchery-test-b2`, `hatchery-test-d`.
 - Token storage: network secrets for Cloudflare and Neon instead of env vars. Pending the blast radius discussion.
 - One or two cloud environments.
 - R2 may require a payment method on file.
