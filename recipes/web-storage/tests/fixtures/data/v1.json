@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entries": [
+    { "id": "a1", "text": "First entry", "createdAt": "2026-10-25T08:00:00.000Z" },
+    { "id": "a2", "text": "Second entry", "createdAt": "2026-10-25T09:00:00.000Z" }
+  ]
+}

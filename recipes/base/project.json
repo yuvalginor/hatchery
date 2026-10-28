@@ -1,0 +1,10 @@
+{
+  "name": "my-project",
+  "title": "My Project",
+  "description": "Replace with one line that says what this project does.",
+  "public": false,
+  "hatchery": {
+    "version": "",
+    "recipes": []
+  }
+}
