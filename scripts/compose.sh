@@ -5,7 +5,9 @@
 #   project.json  keys are added; a key that already exists is a conflict.
 #   .gitignore    lines are appended.
 # Any other file that a second recipe or <dir> already has is a conflict. On a conflict nothing is written.
+# A recipe's NEEDS file lists the recipes that must come before it.
 # Also copies the Karpathy skill and records the hatchery version and the recipes in project.json.
+# Runs on bash 3.2, so it works on macOS as well as in cloud sessions.
 set -euo pipefail
 HATCHERY=$(cd "$(dirname "$0")/.." && pwd)
 dest=${1:?usage: compose.sh <dir> <recipe>...}
@@ -15,16 +17,27 @@ fail() { echo "compose.sh: $*" >&2; exit 1; }
 
 files() { # tracked-style file list of a recipe, without build output
   (cd "$HATCHERY/recipes/$1" && find . -type f \
-    ! -name RECIPE.md ! -path './node_modules/*' ! -path './dist/*' ! -path './reports/*' ! -path './test-results/*' \
+    ! -name RECIPE.md ! -name NEEDS ! -path './node_modules/*' ! -path './dist/*' ! -path './reports/*' ! -path './test-results/*' \
     | sed 's|^\./||' | sort)
 }
 
+seen=" "
+for recipe in "${recipes[@]}"; do
+  [ -d "$HATCHERY/recipes/$recipe" ] || fail "no recipe named '$recipe'"
+  case "$seen" in *" $recipe "*) fail "recipe '$recipe' is listed twice" ;; esac
+  if [ -f "$HATCHERY/recipes/$recipe/NEEDS" ]; then
+    for need in $(cat "$HATCHERY/recipes/$recipe/NEEDS"); do
+      case "$seen" in *" $need "*) ;; *) fail "recipe '$recipe' needs '$need' listed before it" ;; esac
+    done
+  fi
+  seen="$seen$recipe "
+done
+
 work=$(mktemp -d)
-trap 'rm -rf "$work"' EXIT
-declare -A from
+owners=$(mktemp) # "<recipe> <file>" per copied file, to name both sides of a conflict
+trap 'rm -rf "$work" "$owners"' EXIT
 for recipe in "${recipes[@]}"; do
   src="$HATCHERY/recipes/$recipe"
-  [ -d "$src" ] || fail "no recipe named '$recipe'"
   while IFS= read -r file; do
     case "$file" in
       project.json)
@@ -41,8 +54,9 @@ for recipe in "${recipes[@]}"; do
         cat "$src/.gitignore" >> "$work/.gitignore"
         ;;
       *)
-        [ -z "${from[$file]:-}" ] || fail "$file comes from both '${from[$file]}' and '$recipe'"
-        from[$file]=$recipe
+        owner=$(awk -v f="$file" '{ r = $1; sub(/^[^ ]+ /, "") } $0 == f { print r; exit }' "$owners")
+        [ -z "$owner" ] || fail "$file comes from both '$owner' and '$recipe'"
+        echo "$recipe $file" >> "$owners"
         mkdir -p "$work/$(dirname "$file")"
         cp -p "$src/$file" "$work/$file"
         ;;

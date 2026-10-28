@@ -7,7 +7,7 @@ Hatchery conventions, versioned in `VERSION`. Each project records the version i
 Recipes replace the template repo. No project used 1.0.0, so nothing needs migrating.
 
 - `recipes/`: `base` for every project, plus `web`, `web-storage` and `pwa`. The files are the 1.0.0 scaffold, split so the decision tree picks what a project gets. Each recipe has a RECIPE.md.
-- `scripts/compose.sh` copies `base` and the picked recipes into a new project, refuses conflicts, and records `hatchery.version` and `hatchery.recipes` in `project.json`. That replaces the `HATCHERY_VERSION` file.
+- `scripts/compose.sh` copies `base` and the picked recipes into a new project, refuses conflicts, and records `hatchery.version` and `hatchery.recipes` in `project.json`. That replaces the `HATCHERY_VERSION` file. A recipe's `NEEDS` file lists the recipes it requires, and `compose.sh` refuses a list that skips one. It runs on macOS bash 3.2 too.
 - Recipe rules live in `.claude/rules/<recipe>.md`, so recipes never edit the project's CLAUDE.md.
 - `create-project` creates an empty private repo with the topic `hatchery`. The template and `is_template` options are gone. The session composes and pushes the first commit.
 - `project-secret` refuses repos without the topic `hatchery`.

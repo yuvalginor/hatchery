@@ -24,6 +24,8 @@ Recipes add files. They never patch another recipe's file. Two files merge inste
 - `project.json`: a recipe's keys are added. A key that already exists is a conflict.
 - `.gitignore`: a recipe's lines are appended.
 
+A recipe that depends on others lists them in a `NEEDS` file, one per line. `compose.sh` refuses the list unless each needed recipe comes earlier, so `web pwa` works and `pwa` alone does not. `base` is always first and never listed.
+
 The web recipe has extension points, so other recipes plug in by adding files:
 
 - `src/features/<recipe>.ts` runs on page load. One may export `mount(root)` to own `#app`.
