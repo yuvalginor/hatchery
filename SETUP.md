@@ -64,12 +64,12 @@ The `create-project` and `project-secret` workflows use it. Sessions never see i
 
 The existing token creates repos but lacks the Secrets permission (tested: "Resource not accessible by personal access token"). Either edit it, or replace it:
 
-- **Edit:** Settings > Developer settings > Personal access tokens > Fine-grained tokens > the hatchery token > Edit. Add Repository permissions > **Secrets: Read and write**. The token value stays the same.
+- **Edit:** Settings > Developer settings > Personal access tokens > Fine-grained tokens > the hatchery token > Edit. Add Repository permissions > **Secrets: Read and write**. Remove **Contents**: nothing needs it any more. The token value stays the same.
 - **Replace:** open this prefilled form, then set **Repository access: All repositories** (the one field a link cannot fill):
-  `https://github.com/settings/personal-access-tokens/new?name=HATCHERY_PAT&description=hatchery+workflows:+create+project+repos,+set+their+Actions+secrets&target_name=OWNER&expires_in=366&administration=write&contents=read&secrets=write`
+  `https://github.com/settings/personal-access-tokens/new?name=HATCHERY_PAT&description=hatchery+workflows:+create+project+repos,+set+their+topic+and+Actions+secrets&target_name=OWNER&expires_in=366&administration=write&secrets=write`
   Then hatchery > Settings > Secrets and variables > Actions > `HATCHERY_PAT` > Update.
 
-The token needs, on all repositories: **Administration** read and write (create repos, mark the template), **Contents** read (copy the template), **Secrets** read and write (project secrets), and **Metadata** read (automatic). It needs nothing for releases: sessions cannot create releases, so project workflows publish them with their own `GITHUB_TOKEN`.
+The token needs, on all repositories: **Administration** read and write (create repos, set the `hatchery` topic), **Secrets** read and write (project secrets), and **Metadata** read (automatic; reads topics and repo details). Setting topics needs Administration write, and nothing more: tested with the current token. It needs nothing for releases: sessions cannot create releases, so project workflows publish them with their own `GITHUB_TOKEN`.
 
 ## 7. Neon (phone)
 
@@ -119,7 +119,8 @@ Every line should say OK. This settles the open question from the build: whether
 Sessions cannot delete branches or repos; the GitHub proxy blocks both.
 
 - hatchery > Branches: delete `test/results-a`, `test/results-b-c`, `test/results-d` and `request/hatchery-test-b2`. Their useful results are in DECISIONS.md.
-- Delete the test repos, each in Settings > Danger zone: `hatchery-test-b1`, `hatchery-test-b2`, `hatchery-test-d`, `hatchery-test-gen`.
+- Delete the test repos, each in Settings > Danger zone: `hatchery-test-b1`, `hatchery-test-b2`, `hatchery-test-d`, `hatchery-test-gen`, `hatchery-test-recipes`.
+- After you merge the 1.1.0 branch, delete `hatchery-template` the same way. The recipes in `recipes/` replaced it, and nothing uses it any more.
 
 ## 11. Move example.com DNS to Cloudflare (desktop)
 
@@ -180,7 +181,7 @@ If `curl` reaches Cloudflare and Neon but `wrangler whoami` or `neonctl me` fail
 | Opening and closing PRs | Repo settings, Actions secrets and variables, releases |
 | Pushing branches | Deleting branches, pushing tags |
 
-The workflows cover the gaps: `create-project` creates and marks repos, `project-secret` sets secrets.
+The workflows cover the gaps: `create-project` creates repos and sets their topic, `project-secret` sets secrets.
 
 ## Sources
 
@@ -223,7 +224,7 @@ GitHub
 - Email privacy. https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address
 - Blocking pushes that expose your email. https://docs.github.com/en/account-and-profile/how-tos/email-preferences/blocking-command-line-pushes-that-expose-your-personal-email-address
 - Installed GitHub Apps. https://docs.github.com/en/apps/using-github-apps/reviewing-and-modifying-installed-github-apps
-- Create a repo from a template. https://docs.github.com/en/rest/repos/repos#create-a-repository-using-a-template
+- Repo topics: `PUT` needs Administration write. https://docs.github.com/en/rest/repos/repos#replace-all-repository-topics
 - Actions billing and free minutes. https://docs.github.com/en/billing/concepts/product-billing/github-actions
 - Actions limits. https://docs.github.com/en/actions/reference/limits
 

@@ -32,7 +32,7 @@ If no branch fits, take the closest, explain it in the project's DECISIONS.md, a
 
 ## 3. Create the repo
 
-Sessions cannot create repos. The `create-project` workflow does it with `HATCHERY_PAT`.
+Sessions cannot create repos. The `create-project` workflow does it with `HATCHERY_PAT`: an empty private repo with the topic `hatchery`.
 
 ```sh
 run=$(gh api -X POST repos/OWNER/hatchery/actions/workflows/create-project.yml/dispatches \
@@ -47,22 +47,19 @@ gh api repos/OWNER/hatchery/check-runs/$job/annotations --jq '.[] | "\(.title): 
 The annotations carry the result or a clear error. Then:
 
 1. Attach the repo with the `add_repo` tool, `access: push`.
-2. Clone it to `/home/user/$NAME` as the tool says, then call `register_repo_root`.
-3. Run `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash scripts/session-start.sh` in it. Sessions with several repos skip repo hooks, so run it yourself. It sets my commit identity, the git hook and dependencies.
-4. Read the project's CLAUDE.md. From here, it governs work inside the project.
+2. Clone the empty repo to `/home/user/$NAME` as the tool says.
 
-## 4. First deploy, within the hour
+## 4. First commit, and first deploy within the hour
 
-Bootstrap goes straight to `main`: it only renames the template, and an empty repo has nothing to review.
+The first commit goes straight to `main`: it holds only recipe files, and an empty repo has nothing to review.
 
-First run `bash scripts/check-env.sh` in hatchery. If the Access check fails, stop and ask me: without it a private project would deploy in the open.
-
-1. `project.json`: name, title, description, `workersSubdomain` (from `curl -s https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain | jq -r .result.subdomain`).
-2. `wrangler.jsonc` and `package.json`: the same name.
-3. README.md, `status.html` text, `assets/icon.svg`, then `npm run icons`.
-4. `PLAN.md` and a first DECISIONS.md entry with the architecture path.
-5. Commit, push, `npm run deploy`. Production is live behind Access.
-6. Add the project to PROJECTS.md (step 8).
+1. Compose from hatchery: `scripts/compose.sh /home/user/$NAME <recipes>`, with the recipes the tree picked, such as `web web-storage pwa`. It copies `recipes/base`, the recipes in order and the Karpathy skill, and records the hatchery `VERSION` and the recipe list in the project's `project.json`. On a conflict it writes nothing.
+2. In the project: `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash scripts/session-start.sh`. Sessions with several repos skip repo hooks, so run it yourself. It sets my no-reply commit identity and the git hooks, then each recipe's setup, such as `npm ci`.
+3. Do each recipe's "After copying" list in its RECIPE.md: names, `project.json`, README.md, the first DECISIONS.md entry. Write `PLAN.md`.
+4. Commit with the hook, then push `main`.
+5. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
+6. For a web project: run `bash scripts/check-env.sh` in hatchery first. If the Access check fails, stop and ask me: without it a private project would deploy in the open. Then `npm run deploy`. Production is live behind Access.
+7. Add the project to PROJECTS.md (step 8).
 
 Everything after this goes through a branch and a PR.
 
@@ -77,6 +74,7 @@ Only what the plan needs. Every service gets a reason in the project README.
   1. Dispatch it with `inputs[repo]` and `inputs[secret]`. The run's notice annotation gives `key_id=... key=...`.
   2. `printf '%s' "$VALUE" | python3 scripts/seal-secret.py "$KEY"` (from the hatchery checkout).
   3. Dispatch again with `inputs[key_id]` and `inputs[sealed]`. The plaintext never leaves the session.
+  It only serves repos with the topic `hatchery`, which `create-project` sets.
 - R2, Zero Trust seats, Workers Paid, Apple or code-signing certificates: payment. Stop and ask.
 - Public projects: `scripts/access.sh public $NAME` when I say so, plus `"public": true` and the analytics token in `project.json`. Add a `sitemap.xml` and real headings for search. Keep SEO in proportion: AI search answers informational queries directly.
 - Custom domain, when I say it is ready to share: add `{"pattern": "$NAME.example.com", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, deploy main. Access still applies unless the project is public.
@@ -111,14 +109,14 @@ Only what the plan needs. Every service gets a reason in the project README.
 
 ## Follow-up sessions
 
-Later work happens in sessions on the project repo. Its CLAUDE.md asks them to attach hatchery read-only and compare `VERSION` with the project's `HATCHERY_VERSION`. A newer version means: show me the CHANGELOG entries and ask. Never update automatically.
+Later work happens in sessions on the project repo. Its CLAUDE.md asks them to attach hatchery read-only and compare `VERSION` with `hatchery.version` in the project's `project.json`. A newer version means: show me the CHANGELOG entries and ask. Never update automatically. `hatchery.recipes` says which recipe changes apply.
 
 When a project session learns something every project needs, it opens a PR on hatchery if attached, otherwise appends to `HATCHERY_INBOX.md` in the project and tells me. In hatchery sessions, fold inbox items from projects into these files when I ask.
 
 ## Maintaining hatchery
 
-- Conventions are versioned in `VERSION` (semver): major when projects must change code, minor for new conventions or template features, patch for fixes. Every bump gets a CHANGELOG.md entry.
-- Template changes go to `hatchery-template` in a PR, with its `HATCHERY_VERSION` bumped to match.
+- Conventions are versioned in `VERSION` (semver): major when projects must change code, minor for new conventions or recipe features, patch for fixes. Every bump gets a CHANGELOG.md entry that names the recipes it touches.
+- Recipes live in `recipes/`, each with a RECIPE.md. Recipes add files and never patch each other; `recipes/README.md` has the rules. The `recipes` workflow tests `web` alone and the full stack on every change.
 - `create-project` needs `HATCHERY_PAT`; `project-secret` needs its Secrets permission. Both report errors as annotations.
 - Only workflows on `main` can be dispatched. A new workflow works after I merge it.
 

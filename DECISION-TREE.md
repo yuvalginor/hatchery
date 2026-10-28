@@ -1,11 +1,13 @@
 # Architecture decision tree
 
-Walk it at kickoff. Take the first branch that fits and climb only as far as the project needs. Record the path and the reason in the project's DECISIONS.md.
+Walk it at kickoff. Take the first branch that fits and climb only as far as the project needs. Record the path, the recipes and the reasons in the project's DECISIONS.md.
+
+Every project gets the [base](recipes/base/RECIPE.md) recipe. The table after the diagram links each node to its recipe.
 
 ```mermaid
 flowchart TD
   start([New project]) --> browser{1. Can it run in a browser?}
-  browser -- "yes (default)" --> web[Web app: static, PWA, hatchery-template]
+  browser -- "yes (default)" --> web["Web app (recipe: web)"]
   browser -- no --> native{4. Native mobile, desktop or hardware?}
 
   web --> unattended{2. Must it run without me, on a schedule or for long?}
@@ -20,7 +22,7 @@ flowchart TD
   stateful -- "state or live connections" --> durable[Durable Objects]
   stateful -- "long jobs" --> actions2[GitHub Actions job]
 
-  r0[0. Static, browser storage] --> r1[1. Worker route]
+  r0["0. Static, browser storage (recipe: web-storage)"] --> r1[1. Worker route]
   r1 --> r2[2. D1]
   r2 --> r3[3. R2]
   r3 --> r4[4. Neon Postgres]
@@ -30,9 +32,23 @@ flowchart TD
   native -- hardware --> webhw[Web Serial, USB or Bluetooth first]
 ```
 
+| Node | Recipe |
+| --- | --- |
+| Every project | [base](recipes/base/RECIPE.md) |
+| 1. Web app | [web](recipes/web/RECIPE.md), plus [pwa](recipes/pwa/RECIPE.md) when I will install it or use it offline |
+| Rung 0: static, browser storage | [web-storage](recipes/web-storage/RECIPE.md) |
+| 2. Cron Worker, Actions schedule | No recipe yet |
+| 3. Durable Objects, long jobs | No recipe yet |
+| Rungs 1 to 4: Worker route, D1, R2, Neon | No recipe yet |
+| 4. Capacitor, Tauri, hardware | No recipe yet |
+
+No recipe yet means: build from the notes below. When a second project needs the same files, turn the tested ones into a recipe.
+
 ## 1. Can it run in a browser?
 
-Yes is the default. Start from `hatchery-template`: Vite, TypeScript, static files on Workers static assets, installable PWA. Requests for static assets are free and unlimited. Deviate only with a stated reason.
+Yes is the default. Recipe: [web](recipes/web/RECIPE.md). Vite, TypeScript, static files on Workers static assets, private behind Access. Requests for static assets are free and unlimited. Deviate only with a stated reason.
+
+Add [pwa](recipes/pwa/RECIPE.md) when I will use the app from my phone's home screen or offline.
 
 ## 2. Does it need to run without me?
 
@@ -55,16 +71,28 @@ Yes is the default. Start from `hatchery-template`: Vite, TypeScript, static fil
 
 Keep the web code free of platform calls outside `src/platform/`, so wrapping needs no rewrite.
 
+### Platform limits
+
+Cloud sessions run on Linux without Xcode. They cannot build or run native macOS or iOS apps, Capacitor's iOS target included. When an idea needs a native Apple platform, raise it with me and lay out the options instead of guessing:
+
+- A local session on my Mac, which has Xcode.
+- GitHub Actions macOS runners. They count 10x against the 2,000 shared minutes: about 200 macOS minutes a month.
+- A web app, the pwa recipe, or a Tauri desktop build, if one of them covers the need.
+
+There is no macOS or iOS recipe.
+
 ## Web ladder
 
 Climb one rung at a time. Each rung needs a stated reason in the project README.
 
 ### 0. Static, browser storage (default)
 
-- Data in IndexedDB, not localStorage (about 5 MB cap). The template's `src/data/` does this with a versioned schema.
+Recipe: [web-storage](recipes/web-storage/RECIPE.md).
+
+- Data in IndexedDB, not localStorage (about 5 MB cap). The recipe's `src/data/` does this with a versioned schema.
 - Call `navigator.storage.persist()`. Browsers grant it silently by their own heuristics.
 - Always ship export and import. Browser storage is per device and can be evicted: Safari deletes script-written data after 7 days of browser use without a visit, unless the app is installed to the home screen. An installed iOS web app has storage separate from Safari.
-- Install as a PWA.
+- Add the [pwa](recipes/pwa/RECIPE.md) recipe when I will install the app.
 - Research and data projects live here too: compute results at build time into JSON in the bundle, and render charts, tables and a plain-language summary.
 
 ### 1. Worker route

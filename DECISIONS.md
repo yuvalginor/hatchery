@@ -2,6 +2,37 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-28: Version 1.1.0, recipes replace the template repo
+
+### Retire the template repo
+
+The scaffold moved out of the `hatchery-template` repo into `recipes/` in hatchery, and the template repo is retired. Reasons:
+
+- Projects will not look alike. Some ideas are not web apps, and web apps differ in which rungs they use.
+- The template baked in choices the decision tree should make: the IndexedDB layer is rung 0, and a PWA is optional.
+- The value was in the tested files, not in the template mechanism. In hatchery they sit next to the tree that picks them, one repo to maintain, with one CI that tests them.
+
+Four recipes: `base` (every project), `web`, `web-storage` and `pwa`. `scripts/compose.sh` copies base and the picked recipes into the empty project repo, then the session makes the first commit.
+
+How they stack:
+- Recipes only add files. `compose.sh` refuses any file that two recipes, or the target, both have, and then writes nothing.
+- Two files merge: `project.json` gains each recipe's keys (a repeated key is a conflict), and `.gitignore` lines are appended.
+- `web` has extension points so the others need no patches: `src/features/*.ts` modules, `build/plugins/*.ts` Vite plugins, test globs, `scripts/session-start.d/*.sh`, and `.claude/rules/<recipe>.md`. Claude Code loads `.claude/rules/*.md` in every session, confirmed in this session on the composed test repo.
+- `project.json` records `hatchery.version` and `hatchery.recipes`, replacing the `HATCHERY_VERSION` file, so the conventions sync knows what a project started from.
+
+Tested:
+- `web` alone: typecheck, 26 unit tests, 8 e2e tests, privacy check. Full stack: 40 unit tests, 16 e2e tests, privacy check. Both pass locally and in the `recipes` workflow on GitHub.
+- The offline test fails when the service worker stops caching, so it tests the cache and not just the page.
+- End to end: `create-project` made `hatchery-test-recipes` empty, private, with the topic. The session composed all four recipes, committed through the hook with my no-reply identity, and pushed. The project's own CI passed.
+
+The `recipes` workflow runs only on changes under `recipes/`, plus `scripts/compose.sh` and the workflow itself, since both decide what gets tested.
+
+### Topic guard on project-secret
+
+`project-secret` could set Actions secrets on any of my repos except hatchery, because `HATCHERY_PAT` covers all repos. A session could have planted a secret in an unrelated repo. Now it refuses any repo without the topic `hatchery`. `create-project` sets the topic; sessions cannot, because the GitHub proxy blocks repo settings. Setting topics needs the fine-grained permission Administration: write, which the token already has for creating repos. Reading them needs only Metadata.
+
+Tested: a repo without the topic is refused, a repo with it passes the guard, and hatchery itself is still refused.
+
 ## 2026-10-25: Build of version 1.0.0
 
 ### Settled questions from the brief
@@ -35,12 +66,12 @@ Earlier tests (2026-10-24 and 25, branches `test/results-*`):
 This build:
 - `return_run_details=true` makes the dispatch return the run id. Errors and results come back as check-run annotations, readable over REST. Job logs are not: they redirect to a blocked host.
 - Only workflows on the default branch can be dispatched (404 otherwise). A dispatch with `ref` runs the file from that branch.
-- The proxy blocks repo settings writes (403), so marking a template repo moved into `create-project` (`is_template`).
-- Generating from the template works. The initial commit is authored with my no-reply email.
+- The proxy blocks repo settings writes (403). Repo settings, such as topics, come from `create-project`.
+- Generating a repo from a template worked and kept my no-reply email. Superseded in 1.1.0: repos start empty.
 - Opening and closing PRs over REST works. Creating releases is blocked for sessions, so native builds publish releases from the project's own Actions.
 - Branch deletion is blocked over git and REST. The old test branches need deleting by hand (SETUP.md step 10).
 
-### Template and conventions
+### Web conventions, now in the recipes
 
 - **Workers static assets, not Pages.** Static files are free and unlimited, `_headers` works, and Workers is where Cloudflare puts new features such as Previews and Access per Worker.
 - **Previews, not Version URLs, for branches.** `wrangler preview` gives each branch its own settings and bindings. Version URLs run with production resources, which would put my data at risk.
@@ -52,18 +83,21 @@ This build:
 - **Hand-written service worker, network first.** Online visits always get the latest deploy, so iterating never serves stale code. No dependency.
 - **Scripts in TypeScript run directly by Node 22.22.** No build step for tooling.
 - **CI runs on PRs and main only,** on `ubuntu-24.04`, to save the shared 2,000 minutes and keep Playwright's system packages stable.
-- **Bootstrap exception:** the first commit that only renames the template goes straight to `main` and deploys, so the pipeline works in the first hour.
+- **Bootstrap exception:** the first commit, recipe files only, goes straight to `main` and deploys, so the pipeline works in the first hour.
 - **One manual Web Analytics site for example.com.** Creating sites over the API needs Account Settings Edit, which the token must not have. One snippet token covers every subdomain.
 - **Access service token scope:** the network secret goes to `*.<subdomain>.workers.dev` and `*.example.com`, never `*.workers.dev`, which would hand the token to every Workers site on the internet.
 - **`WRANGLER_SEND_ERROR_REPORTS=false`** added to the environment variables, so wrangler never stops to ask.
 
 ### Minimum test floor per project type
 
-Every project keeps the web floor in the template's DECISIONS.md. Add the rows that apply.
+A project's first DECISIONS.md entry lists the rows it keeps. The recipes' own tests meet their rows.
 
 | Project type | Floor |
 | --- | --- |
-| Web app (every project) | Unit tests for all logic. A fixture per saved-data version. E2E on phone and desktop: loads without console errors, data survives reload, export and import round-trip. Read-only `@smoke` against every deploy. Privacy check. |
+| Every project | Tests for all logic. The pre-commit hook and CI run them. |
+| Web app | E2E on phone and desktop: loads without console errors. Read-only `@smoke` against every deploy. Privacy check. |
+| Browser storage | A fixture per saved-data version. Data survives a reload. Export and import round-trip. |
+| PWA | The manifest is served. Pages load offline after the first visit. |
 | Worker API | Unit tests for handlers. E2E calls each route through `wrangler dev`. Auth and input validation tests for every write route. |
 | D1 or Neon | Migrations apply to an empty local database and to a fixture copy of every past schema. No destructive migration without a test that proves the data survives. |
 | Scheduled job | Job logic tested on fixture inputs. A dry-run mode that the tests use. The dashboard shows the last run and its result. |
