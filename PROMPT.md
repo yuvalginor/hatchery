@@ -1,6 +1,6 @@
 # hatchery: build prompt
 
-Status: ready to execute.
+Status: done. This brief built hatchery 1.0.0 and is kept for history only. Do not follow it. CLAUDE.md is the playbook, DECISIONS.md records what changed since, including the move from the `hatchery-template` repo to `recipes/`.
 
 ----
 

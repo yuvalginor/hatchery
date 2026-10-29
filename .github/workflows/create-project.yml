@@ -1,66 +1,62 @@
-# Creates a private project repo. Option B in TEST-PLAN.md.
-# Triggers:
-#   - workflow_dispatch with input `name` (session calls the REST API).
-#   - push to branch `request/<name>` (fallback if dispatch is blocked).
-# If the pushed branch contains export/<name>/, that folder becomes the new repo's main.
-# Needs secret HATCHERY_PAT: a token that can create repos and push to them.
+# Creates an empty private project repo with the topic "hatchery".
+# A session dispatches it over the REST API, attaches the repo with add_repo, and pushes the
+# first commit composed from recipes/. The topic marks hatchery projects: project-secret refuses
+# any repo without it, and sessions cannot set topics, because the GitHub proxy blocks repo settings.
+# Errors surface as annotations on the run, readable over the REST API.
+# Needs Actions secret HATCHERY_PAT (SETUP.md, step 6).
 
 name: create-project
+run-name: create-project ${{ inputs.name }}
 
 on:
   workflow_dispatch:
     inputs:
       name:
-        description: Repo name (lowercase, digits, dashes)
+        description: Repo name. 1 to 32 characters, lowercase letters, digits and dashes.
         required: true
-  push:
-    branches: ["request/**"]
+      description:
+        description: One-line repo description.
+        required: false
+        default: ""
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: create-project-${{ inputs.name }}
 
 jobs:
   create:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     env:
       GH_TOKEN: ${{ secrets.HATCHERY_PAT }}
       OWNER: ${{ github.repository_owner }}
-      INPUT_NAME: ${{ inputs.name }}
-      EVENT: ${{ github.event_name }}
-      REF_NAME: ${{ github.ref_name }}
+      NAME: ${{ inputs.name }}
+      DESCRIPTION: ${{ inputs.description }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          # Otherwise git sends the job's GITHUB_TOKEN, which cannot see the new repo.
-          persist-credentials: false
-
-      - name: Resolve and validate name
+      - name: Create repo
         run: |
-          if [ "$EVENT" = "push" ]; then NAME="${REF_NAME#request/}"; else NAME="$INPUT_NAME"; fi
-          if ! printf '%s' "$NAME" | grep -Eq '^[a-z0-9][a-z0-9-]{0,62}$'; then
-            echo "Invalid name: $NAME"; exit 1
-          fi
-          echo "NAME=$NAME" >> "$GITHUB_ENV"
+          fail() { echo "::error title=create-project::$1"; exit 1; }
+          # why: gh's own last error line, such as "Resource not accessible by personal access token (HTTP 403)".
+          api() { gh api "$@" 2>"$RUNNER_TEMP/gh.err"; }
+          why() { tail -n 1 "$RUNNER_TEMP/gh.err"; }
 
-      - name: Create repo if missing
-        run: |
-          if gh api "repos/$OWNER/$NAME" >/dev/null 2>&1; then
-            echo "Repo exists: $OWNER/$NAME"
-          else
-            gh api -X POST user/repos -f name="$NAME" -F private=true >/dev/null
-            echo "Created: $OWNER/$NAME"
+          [ -n "$GH_TOKEN" ] || fail "Secret HATCHERY_PAT is not set on hatchery. See SETUP.md."
+          api user >/dev/null || fail "HATCHERY_PAT is invalid or expired ($(why)). Replace it (SETUP.md)."
+
+          # 32 characters leaves room for Preview names in the 63-character workers.dev label.
+          printf '%s' "$NAME" | grep -Eq '^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$' \
+            || fail "Invalid name '$NAME'. Use 1 to 32 lowercase letters, digits and dashes; no dash at either end."
+          case "$NAME" in *--*) fail "Invalid name '$NAME'. No double dashes." ;; esac
+
+          if api "repos/$OWNER/$NAME" >/dev/null; then
+            fail "Repo $OWNER/$NAME already exists. Pick another name."
           fi
 
-      - name: Export folder to new repo
-        if: hashFiles(format('export/{0}/**', env.NAME)) != ''
-        run: |
-          # Commit as the token owner's no-reply identity so commits count as their contributions.
-          LOGIN=$(gh api user --jq .login)
-          ID=$(gh api user --jq .id)
-          NAME_FULL=$(gh api user --jq '.name // .login')
-          git config user.name "$NAME_FULL"
-          git config user.email "${ID}+${LOGIN}@users.noreply.github.com"
-          git subtree split --prefix="export/$NAME" -b export-branch
-          git push "https://x-access-token:${GH_TOKEN}@github.com/$OWNER/$NAME.git" export-branch:main
-          echo "Exported export/$NAME to $OWNER/$NAME main"
+          api -X POST user/repos -f name="$NAME" -f description="$DESCRIPTION" -F private=true >/dev/null \
+            || fail "Creating $OWNER/$NAME failed ($(why)). Check HATCHERY_PAT permissions (SETUP.md)."
+          api -X PUT "repos/$OWNER/$NAME/topics" -f 'names[]=hatchery' >/dev/null \
+            || fail "Created $OWNER/$NAME, but setting the topic hatchery failed ($(why)). Add it by hand under About > Topics."
+
+          echo "::notice title=created::https://github.com/$OWNER/$NAME"
+          echo "Created [$OWNER/$NAME](https://github.com/$OWNER/$NAME), empty, with the topic \`hatchery\`." >> "$GITHUB_STEP_SUMMARY"

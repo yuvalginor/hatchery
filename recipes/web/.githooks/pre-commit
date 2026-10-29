@@ -1,0 +1,3 @@
+#!/bin/sh
+# Commits are gated on the full test suite. npm install wires this hook via core.hooksPath.
+exec npm test

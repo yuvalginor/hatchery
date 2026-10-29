@@ -1,0 +1,7 @@
+/* Styles for the example list in src/entries.ts. Uses the variables from src/styles.css. */
+.add { display: flex; gap: 0.5rem; }
+.add input { flex: 1; min-width: 0; }
+.entries { list-style: none; padding: 0; }
+.entries li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+.entries .empty { color: var(--muted); }
+.tools { display: flex; gap: 0.5rem; }

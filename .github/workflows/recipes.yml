@@ -1,0 +1,48 @@
+# Tests the recipes as projects get them: web alone, and the full stack.
+# Runs only when recipes, the compose script or this file change, to save Actions minutes.
+
+name: recipes
+
+on:
+  push:
+    paths:
+      - recipes/**
+      - scripts/compose.sh
+      - .github/workflows/recipes.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recipes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.stack }}
+    strategy:
+      fail-fast: false
+      matrix:
+        stack: [web, web web-storage pwa]
+    # Pinned: Playwright's system dependencies are tested against this image.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      STACK: ${{ matrix.stack }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: recipes/web/package-lock.json
+      - name: Compose
+        # STACK is unquoted on purpose: one recipe name per word.
+        run: scripts/compose.sh "$RUNNER_TEMP/project" $STACK
+      - name: Test
+        working-directory: ${{ runner.temp }}/project
+        run: |
+          git init -q
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npm test
