@@ -1,11 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="hatchery: an egg cracking open">
-  <defs>
-    <path id="egg" d="M80 20 C107 20 127 61 127 95 C127 126 106 148 80 148 C54 148 33 126 33 95 C33 61 53 20 80 20 Z"/>
-    <clipPath id="lower"><path d="M16 86 L42 86 L54 72 L67 88 L80 72 L93 88 L106 72 L118 86 L144 86 L144 160 L16 160 Z"/></clipPath>
-    <clipPath id="upper"><path d="M16 86 L42 86 L54 72 L67 88 L80 72 L93 88 L106 72 L118 86 L144 86 L144 0 L16 0 Z"/></clipPath>
-  </defs>
-  <use href="#egg" fill="#c2410c" clip-path="url(#lower)"/>
-  <g transform="translate(0 -9) rotate(-5 80 86)">
-    <use href="#egg" fill="#ea580c" clip-path="url(#upper)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="hatchery: a cracked egg">
+  <path d="M80 16 C108 16 128 60 128 94 C128 126 107 148 80 148 C53 148 32 126 32 94 C32 60 52 16 80 16 Z"
+        fill="#e3c4a0" stroke="#6b4a2e" stroke-width="6"/>
+  <g fill="none" stroke="#6b4a2e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 38 L66 56 L58 66 L72 82 L64 98"/>
+    <path d="M66 56 L80 54"/>
+    <path d="M72 82 L88 84 L96 100"/>
   </g>
 </svg>

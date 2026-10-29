@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="140" alt="An egg cracking open">
+  <img src="assets/logo.svg" width="140" alt="A cracked egg">
 </p>
 
 <h1 align="center">hatchery</h1>
