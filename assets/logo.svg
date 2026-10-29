@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="hatchery: a cracked egg">
   <path d="M80 14 C109 14 130 60 130 95 C130 127 108 148 80 148 C52 148 30 127 30 95 C30 60 51 14 80 14 Z"
         fill="#e3c4a0" stroke="#6b4a2e" stroke-width="9"/>
-  <path d="M31 74 L47 69 L57 82 L76 61 L102 88 L75 68 L57 92 L46 78 L32 84 Z" fill="#6b4a2e"/>
+  <path d="M31 74 L47 69 L57 82 L76 61 L92 76 L103 62 L115 77 L103 68 L91 83 L75 68 L57 92 L46 78 L32 84 Z" fill="#6b4a2e"/>
 </svg>
