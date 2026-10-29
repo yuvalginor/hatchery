@@ -17,6 +17,11 @@ python3 -c 'import nacl' 2>/dev/null && ok "pynacl installed" || bad "pynacl mis
 for var in CLOUDFLARE_API_TOKEN NEON_API_KEY; do
   [ "${!var:-}" = placeholder ] && ok "$var is the placeholder" || bad "$var must be the word placeholder; the real value is a network secret"
 done
+for var in HATCHERY_OWNER HATCHERY_GIT_NAME HATCHERY_GIT_EMAIL; do
+  [ -n "${!var:-}" ] && ok "$var set" || bad "$var not set (SETUP.md, step 8)"
+done
+case "${HATCHERY_GIT_EMAIL:-}" in *@users.noreply.github.com) ok "HATCHERY_GIT_EMAIL is a GitHub no-reply address" ;; *) bad "HATCHERY_GIT_EMAIL should be your GitHub no-reply address" ;; esac
+[ -n "${HATCHERY_DOMAIN:-}" ] && ok "HATCHERY_DOMAIN set" || ok "HATCHERY_DOMAIN not set: no custom domains (optional)"
 [ "${WRANGLER_SEND_METRICS:-}" = false ] && ok "WRANGLER_SEND_METRICS=false" || bad "WRANGLER_SEND_METRICS should be false"
 
 # curl sends no Authorization header here. The proxy adds the network secret.
@@ -38,7 +43,7 @@ apps=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/access/apps" 2>/dev/
 echo "$apps" | jq -e '.result[]? | select(any(.destinations[]?; .type == "all_workers"))' >/dev/null 2>&1 \
   && ok "Access protects all Workers" || bad "No Access app for all Workers: run scripts/access.sh init (needs Zero Trust, SETUP.md step 4)"
 
-gh api repos/OWNER/hatchery/actions/workflows --jq '.workflows[].path' 2>/dev/null | grep -q create-project \
+gh api "repos/${HATCHERY_OWNER:-none}/hatchery/actions/workflows" --jq '.workflows[].path' 2>/dev/null | grep -q create-project \
   && ok "GitHub: create-project workflow reachable" || bad "GitHub: cannot see hatchery workflows"
 
 echo

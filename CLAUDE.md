@@ -1,12 +1,13 @@
 # CLAUDE.md: hatchery launcher playbook
 
-I open a session here, describe a project, and you take it from idea to a deployed, verified app in its own private repo. Follow this file. DECISION-TREE.md picks the architecture. PROJECTS.md lists every project. SETUP.md covers what I did by hand.
+I open a session here, describe a project, and you take it from idea to a deployed, verified app in its own private repo. Follow this file. DECISION-TREE.md picks the architecture. SETUP.md covers what I did by hand.
 
 ## Ground rules
 
 - Free tier only. Never enter payment details or start anything billable. If a step needs a payment method or a paid plan, stop and ask me.
 - Ask when my answer changes the outcome. Otherwise pick the sensible default, say so, and go.
 - One session per project. Knowledge for every project goes into these files, not into chat.
+- My personal values live in the cloud environment, never in this repo: `HATCHERY_OWNER` (my GitHub account), `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` (commit identity), `HATCHERY_DOMAIN` (optional, for custom domains), `HATCHERY_ANALYTICS_TOKEN` (optional). This repo is public: never write their values into it. Project repos are private and may hold them.
 - Never print, store or commit an account token. The proxy adds them: `curl` to `api.cloudflare.com` or `console.neon.tech` needs no auth header, and `wrangler` and `neonctl` run with the placeholder values in the environment.
 - Use the Karpathy guidelines skill (`.claude/skills/karpathy-guidelines`).
 - When you need me, or finish a long task, send a push notification.
@@ -35,13 +36,13 @@ If no branch fits, take the closest, explain it in the project's DECISIONS.md, a
 Sessions cannot create repos. The `create-project` workflow does it with `HATCHERY_PAT`: an empty private repo with the topic `hatchery`.
 
 ```sh
-run=$(gh api -X POST repos/OWNER/hatchery/actions/workflows/create-project.yml/dispatches \
+run=$(gh api -X POST repos/$HATCHERY_OWNER/hatchery/actions/workflows/create-project.yml/dispatches \
   -f ref=main -f "inputs[name]=$NAME" -f "inputs[description]=$DESCRIPTION" \
   -F return_run_details=true --jq .workflow_run_id)
-until [ "$(gh api repos/OWNER/hatchery/actions/runs/$run --jq .status)" = completed ]; do sleep 5; done
-gh api repos/OWNER/hatchery/actions/runs/$run --jq .conclusion
-job=$(gh api repos/OWNER/hatchery/actions/runs/$run/jobs --jq '.jobs[0].id')
-gh api repos/OWNER/hatchery/check-runs/$job/annotations --jq '.[] | "\(.title): \(.message)"'
+until [ "$(gh api repos/$HATCHERY_OWNER/hatchery/actions/runs/$run --jq .status)" = completed ]; do sleep 5; done
+gh api repos/$HATCHERY_OWNER/hatchery/actions/runs/$run --jq .conclusion
+job=$(gh api repos/$HATCHERY_OWNER/hatchery/actions/runs/$run/jobs --jq '.jobs[0].id')
+gh api repos/$HATCHERY_OWNER/hatchery/check-runs/$job/annotations --jq '.[] | "\(.title): \(.message)"'
 ```
 
 The annotations carry the result or a clear error. Then:
@@ -59,7 +60,6 @@ The first commit goes straight to `main`: it holds only recipe files, and an emp
 4. Commit with the hook, then push `main`.
 5. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
 6. For a web project: run `bash scripts/check-env.sh` in hatchery first. If the Access check fails, stop and ask me: without it a private project would deploy in the open. Then `npm run deploy`. Production is live behind Access.
-7. Add the project to PROJECTS.md (step 8).
 
 Everything after this goes through a branch and a PR.
 
@@ -76,8 +76,8 @@ Only what the plan needs. Every service gets a reason in the project README.
   3. Dispatch again with `inputs[key_id]` and `inputs[sealed]`. The plaintext never leaves the session.
   It only serves repos with the topic `hatchery`, which `create-project` sets.
 - R2, Zero Trust seats, Workers Paid, Apple or code-signing certificates: payment. Stop and ask.
-- Public projects: `scripts/access.sh public $NAME` when I say so, plus `"public": true` and the analytics token in `project.json`. Add a `sitemap.xml` and real headings for search. Keep SEO in proportion: AI search answers informational queries directly.
-- Custom domain, when I say it is ready to share: add `{"pattern": "$NAME.example.com", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, deploy main. Access still applies unless the project is public.
+- Public projects: `scripts/access.sh public $NAME` when I say so, plus `"public": true` and `analyticsToken` from `HATCHERY_ANALYTICS_TOKEN` in `project.json`. Add a `sitemap.xml` and real headings for search. Keep SEO in proportion: AI search answers informational queries directly.
+- Custom domain, when I say it is ready to share and `HATCHERY_DOMAIN` is set: add `{"pattern": "$NAME.$HATCHERY_DOMAIN", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, deploy main. Access still applies unless the project is public.
 
 ## 6. Build
 
@@ -91,14 +91,13 @@ Only what the plan needs. Every service gets a reason in the project README.
 
 1. `npm run deploy` on the branch. It runs the tests, writes the status page data, scans `dist/`, deploys a Preview, and runs the read-only smoke tests against it through the proxy.
 2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. Check the status page too. If it doesn't look right, it isn't done.
-3. Open a PR: `gh api repos/OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. `gh pr` is blocked.
+3. Open a PR: `gh api repos/$HATCHERY_OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. `gh pr` is blocked.
 4. Never merge on your own. I merge, or tell you to. After a merge, check out `main`, pull, and `npm run deploy` for production.
 
 ## 8. Record
 
-- PROJECTS.md: add or update the project's row in a hatchery branch and open a PR on hatchery.
 - Project DECISIONS.md and CLAUDE.md: what the next session needs.
-- Lessons for every project: update these files in the same hatchery PR. If it changes conventions, bump `VERSION` and add a CHANGELOG.md entry.
+- Lessons for every project: update these files in a hatchery branch and open a PR on hatchery. If it changes conventions, bump `VERSION` and add a CHANGELOG.md entry.
 
 ## 9. Report in the session
 
@@ -124,5 +123,5 @@ When a project session learns something every project needs, it opens a PR on ha
 
 - GitHub proxy (tested 2026-10-25): REST only, no GraphQL. Blocks repo creation, repo settings, Actions secrets and variables, releases, and branch deletion. Allows workflow dispatch, runs, jobs, annotations, PRs, and pushes to attached repos.
 - Actions minutes: 2,000 a month across all private repos. macOS counts 10x.
-- Cloudflare free plan: 5 cron triggers per account, 100,000 Worker requests a day, 10 D1 databases.
-- Session network: package registries, GitHub, `*.workers.dev`, `*.example.com`, and the network secret hosts.
+- Cloudflare free plan: 5 cron triggers per account (before adding one, count the account's existing triggers with the Cloudflare API and tell me if none is left), 100,000 Worker requests a day, 10 D1 databases.
+- Session network: package registries, GitHub, `*.workers.dev`, `*.$HATCHERY_DOMAIN`, and the network secret hosts.

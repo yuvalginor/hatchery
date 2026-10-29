@@ -52,7 +52,7 @@ Add [pwa](recipes/pwa/RECIPE.md) when I will use the app from my phone's home sc
 
 ## 2. Does it need to run without me?
 
-- Light work (under 10 ms CPU per run, under 50 subrequests): a Cloudflare cron Worker. The free plan allows 5 cron triggers per account, shared by every project. Track them in PROJECTS.md.
+- Light work (under 10 ms CPU per run, under 50 subrequests): a Cloudflare cron Worker. The free plan allows 5 cron triggers per account, shared by every project. Before adding one, count the account's triggers with the Cloudflare API.
 - Heavy work: GitHub Actions on a schedule, up to 6 hours per job. Private repos share 2,000 minutes a month across all projects. Linux minutes count 1x, Windows 2x, macOS 10x. Budget each job before adding it.
 - Crawling arbitrary websites: the crawler runs in the project's own Actions, because sessions have limited network access. The job commits its output to the repo or a data branch with my commit identity. The session only reads that data.
 - Results still go to the web dashboard.

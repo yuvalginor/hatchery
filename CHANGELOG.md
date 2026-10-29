@@ -2,6 +2,17 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 1.2.0 (2026-10-29)
+
+Ready to be public. Touches the `base` recipe.
+
+- Personal values come from the cloud environment: `HATCHERY_OWNER`, `HATCHERY_GIT_NAME`, `HATCHERY_GIT_EMAIL`, and optional `HATCHERY_DOMAIN` and `HATCHERY_ANALYTICS_TOKEN`. Nothing personal is in the repo.
+- `base`: `scripts/session-start.sh` sets the commit identity from `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL`, and warns if they are missing. The project CLAUDE.md attaches `$HATCHERY_OWNER/hatchery`. Existing projects: copy both files from `recipes/base`.
+- PROJECTS.md is gone. Find projects by the topic `hatchery`. Before adding a cron trigger, sessions count the account's triggers with the Cloudflare API.
+- PROMPT.md is gone; it is in the history.
+- `check-env.sh` checks the new variables.
+- README rewritten, MIT license, SETUP.md generic for anyone who forks hatchery.
+
 ## 1.1.0 (2026-10-28)
 
 Recipes replace the template repo. No project used 1.0.0, so nothing needs migrating.

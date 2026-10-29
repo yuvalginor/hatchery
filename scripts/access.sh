@@ -6,7 +6,7 @@
 #   scripts/access.sh public <worker> Makes one Worker public, when I say a project goes public.
 #   scripts/access.sh private <worker> Undoes public.
 #   scripts/access.sh list            Lists Access apps.
-# Set ACCESS_TOKEN_HEADER=<name> with init to accept the service token in one header (SETUP.md, step 7).
+# Set ACCESS_TOKEN_HEADER=<name> with init to accept the service token in one header (SETUP.md, step 8).
 set -euo pipefail
 : "${CLOUDFLARE_ACCOUNT_ID:?not set: use the hatchery-build environment}"
 CF=https://api.cloudflare.com/client/v4

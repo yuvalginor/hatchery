@@ -2,6 +2,15 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-29: Version 1.2.0, ready to be public
+
+Hatchery goes public so friends can use it. Three decisions:
+
+- **Personal values live in the cloud environment, not the repo.** `HATCHERY_OWNER`, `HATCHERY_GIT_NAME`, `HATCHERY_GIT_EMAIL`, `HATCHERY_DOMAIN` and `HATCHERY_ANALYTICS_TOKEN` are environment variables in `hatchery-build`. Sessions read them; the repo names only the variables. A config file in the repo would have published them, and a gitignored one would not exist in cloud sessions, which clone the repo fresh. The environment is per person and already holds the account ID and network secrets, so a friend who forks hatchery sets their own values in one place. Project repos are private, so a session may write these values into them where a file needs them.
+- **No project registry.** PROJECTS.md would have listed every private project in a public repo. A workflow that prints the list would too, because run logs and summaries of a public repo are public. Nothing needs the list: `create-project` refuses a repo name that exists, and before adding a cron trigger the session counts the account's triggers with the Cloudflare API. Every project repo carries the topic `hatchery`, so I find them with a GitHub search for `topic:hatchery` or by asking Claude on my laptop to run `gh repo list --topic hatchery`.
+- **No original brief.** PROMPT.md built version 1.0.0 and then only misled sessions that found it in a search. It was removed; `git log --all -- PROMPT.md` finds it in the history.
+- **Personal data removed from the history** before the repo went public, so no old commit holds my domain, name or email address in its files.
+
 ## 2026-10-28: Version 1.1.0, recipes replace the template repo
 
 ### Retire the template repo
@@ -44,7 +53,7 @@ Not settled yet. This build session ran outside `hatchery-build`, with no Cloudf
 No. Tested: every `actions/secrets` and `actions/variables` path returns 403 "Access to this GitHub Actions path is not permitted through this proxy", reads included. Built instead: the `project-secret` workflow. The session seals the value with the target repo's public key (`scripts/seal-secret.py`), so the plaintext never leaves the session. Tested so far: the guard that refuses hatchery itself, and the seal round trip. The current `HATCHERY_PAT` lacks the Secrets permission ("Resource not accessible by personal access token"), so SETUP.md step 6 adds it.
 
 **Do Workers custom domains need zone DNS edit?**
-Probably not. The API schema lists only account "Workers Scripts Write" for the custom domain endpoints. Wrangler deploys custom domains through account-level endpoints and lets Cloudflare create the DNS record. Cloudflare's own "Edit Cloudflare Workers" token template has zone "Workers Routes" and no DNS permission. So the token gets zone Workers Routes Edit on example.com and no DNS edit. Smoke test 5 confirms; add DNS Edit on that zone only if it fails.
+Probably not. The API schema lists only account "Workers Scripts Write" for the custom domain endpoints. Wrangler deploys custom domains through account-level endpoints and lets Cloudflare create the DNS record. Cloudflare's own "Edit Cloudflare Workers" token template has zone "Workers Routes" and no DNS permission. So the token gets zone Workers Routes Edit on my domain and no DNS edit. Smoke test 5 confirms; add DNS Edit on that zone only if it fails.
 
 **Does Neon offer keys narrower than the personal API key?**
 Yes: organization keys and project-scoped keys. A project-scoped key has Editor access to one project and cannot create projects. Hatchery creates one Neon project per hatchery project, so sessions need a personal or organization key. Jobs never get an API key: they get a connection string for their own database role.
@@ -69,7 +78,7 @@ This build:
 - The proxy blocks repo settings writes (403). Repo settings, such as topics, come from `create-project`.
 - Generating a repo from a template worked and kept my no-reply email. Superseded in 1.1.0: repos start empty.
 - Opening and closing PRs over REST works. Creating releases is blocked for sessions, so native builds publish releases from the project's own Actions.
-- Branch deletion is blocked over git and REST. The old test branches need deleting by hand (SETUP.md step 10).
+- Branch deletion is blocked over git and REST. Branches are deleted by hand.
 
 ### Web conventions, now in the recipes
 
@@ -84,8 +93,8 @@ This build:
 - **Scripts in TypeScript run directly by Node 22.22.** No build step for tooling.
 - **CI runs on PRs and main only,** on `ubuntu-24.04`, to save the shared 2,000 minutes and keep Playwright's system packages stable.
 - **Bootstrap exception:** the first commit, recipe files only, goes straight to `main` and deploys, so the pipeline works in the first hour.
-- **One manual Web Analytics site for example.com.** Creating sites over the API needs Account Settings Edit, which the token must not have. One snippet token covers every subdomain.
-- **Access service token scope:** the network secret goes to `*.<subdomain>.workers.dev` and `*.example.com`, never `*.workers.dev`, which would hand the token to every Workers site on the internet.
+- **One manual Web Analytics site for my domain.** Creating sites over the API needs Account Settings Edit, which the token must not have. One snippet token covers every subdomain.
+- **Access service token scope:** the network secret goes to `*.<subdomain>.workers.dev` and `*.<my domain>`, never `*.workers.dev`, which would hand the token to every Workers site on the internet.
 - **`WRANGLER_SEND_ERROR_REPORTS=false`** added to the environment variables, so wrangler never stops to ask.
 
 ### Minimum test floor per project type

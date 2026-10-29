@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Setup script for the hatchery-build cloud environment (SETUP.md, step 7).
+# Setup script for the hatchery-build cloud environment (SETUP.md, step 8).
 # Runs as root on Ubuntu 24.04 before Claude Code starts, then the environment is cached.
 # It cannot read the environment's variables or network secrets. It must exit 0.
 # Idempotent: skips anything already installed. Node, npm, Python, gh, jq and Playwright's Chromium come preinstalled.

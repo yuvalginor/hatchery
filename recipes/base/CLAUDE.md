@@ -6,7 +6,7 @@ Each recipe the project started from adds its commands and rules in `.claude/rul
 
 ## Start of every session
 
-1. Check hatchery. Attach `OWNER/hatchery` with `add_repo` (read). If its `VERSION` is newer than `hatchery.version` in `project.json`, show me its CHANGELOG.md entries since ours and ask whether to update. Never update on your own.
+1. Check hatchery. Attach `$HATCHERY_OWNER/hatchery` with `add_repo` (read). If its `VERSION` is newer than `hatchery.version` in `project.json`, show me its CHANGELOG.md entries since ours and ask whether to update. Never update on your own.
 2. Read DECISIONS.md.
 3. In a cloud session, `scripts/session-start.sh` sets the commit identity and git hooks, then runs each recipe's setup in `scripts/session-start.d/`. Sessions with several repos skip repo hooks; then run it yourself: `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash scripts/session-start.sh`.
 
@@ -18,7 +18,7 @@ Each recipe the project started from adds its commands and rules in `.claude/rul
 - Security: OWASP top 10. No secrets in the repo. Actions secrets go through hatchery's `project-secret` workflow.
 - Private by default (`"public": false` in `project.json`). Go public only when I say.
 - Every added service gets a reason in README.md.
-- Commits, including commits by workflows, use my name and `ID+USERNAME@users.noreply.github.com`.
+- Commits use `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` from the cloud environment; `scripts/session-start.sh` sets them. A workflow that commits gets the same two values written into it.
 
 ## Before you finish
 

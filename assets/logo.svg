@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="hatchery: a hatching egg">
+  <ellipse cx="80" cy="146" rx="42" ry="6" fill="#d9c9a8" opacity="0.6"/>
+  <!-- chick -->
+  <circle cx="80" cy="74" r="26" fill="#f6c445"/>
+  <circle cx="71" cy="69" r="3.2" fill="#3b2f20"/>
+  <circle cx="89" cy="69" r="3.2" fill="#3b2f20"/>
+  <path d="M74 79 L86 79 L80 87 Z" fill="#e8743b"/>
+  <!-- lower shell with a zigzag rim -->
+  <path d="M34 88 L46 80 L56 92 L68 80 L80 92 L92 80 L104 92 L114 80 L126 88
+           C128 122 108 142 80 142 C52 142 32 122 34 88 Z"
+        fill="#fbf4e4" stroke="#3b2f20" stroke-width="4" stroke-linejoin="round"/>
+  <!-- lifted top shell -->
+  <g transform="rotate(-18 92 34)">
+    <path d="M52 44 C54 20 70 8 86 8 C102 8 118 20 120 44 L110 36 L100 46 L90 36 L80 46 L70 36 L60 46 Z"
+          fill="#fbf4e4" stroke="#3b2f20" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+  <!-- sparkles -->
+  <path d="M138 58 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" fill="#f6c445"/>
+  <path d="M22 50 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z" fill="#e8743b"/>
+</svg>
