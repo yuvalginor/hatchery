@@ -69,13 +69,13 @@ Only what the plan needs. Every service gets a reason in the project README.
 
 - D1: `npx wrangler d1 create $NAME` and `npx wrangler d1 create $NAME-preview`. Production binding at the top level of `wrangler.jsonc`, preview binding under `previews`.
 - Worker secrets: `npx wrangler secret put NAME`, and `npx wrangler preview base-config secret put NAME` for Previews.
-- Neon: needs `NEON_API_KEY`. If it is not set, stop and ask me to do SETUP.md step 7. `neonctl projects create --name $NAME`. Store the connection string as a Worker secret. Never in the repo.
+- Neon: `neonctl projects create --name $NAME`. Store the connection string as a Worker secret. Never in the repo.
 - Actions secrets: the proxy blocks sessions from them. Use hatchery's `project-secret` workflow:
   1. Dispatch it with `inputs[repo]` and `inputs[secret]`. The run's notice annotation gives `key_id=... key=...`.
   2. `printf '%s' "$VALUE" | python3 scripts/seal-secret.py "$KEY"` (from the hatchery checkout).
   3. Dispatch again with `inputs[key_id]` and `inputs[sealed]`. The plaintext never leaves the session.
   It only serves repos with the topic `hatchery`, which `create-project` sets.
-- Access off and a private project: anyone with the URL can reach it. Before adding a Worker route, D1, or anything that holds my data or spends a quota, stop and ask me: turn on Access (SETUP.md step 4), add auth to the Worker, or accept it.
+- Access off and a private project: anyone with the URL can reach it. Before adding a Worker route, D1, or anything that holds my data or spends a quota, stop and ask me: turn on Access for this project (`scripts/access.sh protect $NAME`, needs SETUP.md step 4), add auth to the Worker, or accept it.
 - R2, Zero Trust seats, Workers Paid, Apple or code-signing certificates: payment. Stop and ask.
 - Public projects: `scripts/access.sh public $NAME` when I say so, plus `"public": true` and `analyticsToken` from `HATCHERY_ANALYTICS_TOKEN` in `project.json`. Add a `sitemap.xml` and real headings for search. Keep SEO in proportion: AI search answers informational queries directly.
 - Custom domain, when I say it is ready to share and `HATCHERY_DOMAIN` is set: add `{"pattern": "$NAME.$HATCHERY_DOMAIN", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, deploy main. Access still applies unless the project is public.

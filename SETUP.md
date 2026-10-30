@@ -2,7 +2,7 @@
 
 Everything you do by hand, once, in about an hour. Do the steps in order. Sources are at the end.
 
-You need a GitHub account, a Claude plan with Claude Code on the web, and a Cloudflare account. Neon, sign-in with Access, and a domain of your own are optional.
+You need a GitHub account, a Claude plan with Claude Code on the web, a Cloudflare account and a Neon account. Sign-in with Access and a domain of your own are optional.
 
 ## Before you start: your copy
 
@@ -12,8 +12,7 @@ Fork this repo into your GitHub account and keep the name `hatchery`. Sessions f
 
 Skip these now and add them when a project needs them:
 
-- **Access (step 4).** A sign-in in front of every private project. Its onboarding asks for payment details even on the Free plan, which costs nothing. Without Access, private projects have `noindex` and an unlisted URL: search engines skip them, but anyone with the link can open them. That is fine for an app that keeps its data in your browser. Before a private project stores data on a server, the session stops and asks you.
-- **Neon (step 7).** Postgres, the top rung of the ladder. D1 covers most projects.
+- **Access (step 4).** A sign-in in front of every private project. Its onboarding asks for payment details even on the Free plan, which costs nothing. Without Access, private projects have `noindex` and an unlisted URL: search engines skip them, but anyone with the link can open them. That is fine for an app that keeps its data in your browser. Before a private project stores data on a server, the session stops and asks you. You can turn Access on for one project or for all of them.
 - **R2.** File storage. It needs a payment method, even at zero usage. Small files fit in D1.
 - **A custom domain and analytics (steps 10 and 11).**
 - **A research environment (step 13).** Open internet for research, scraping and reverse engineering.
@@ -43,7 +42,7 @@ Skip this to go without sign-in. See "Optional parts" above. You can add it late
 2. Zero Trust > Integrations > Identity providers > **Add new identity provider** > **One-time PIN**. You sign in to private projects with a code sent to your Cloudflare email.
 3. Zero Trust > Access controls > Service credentials > Service Tokens > **Create Service Token**. Name: `hatchery-sessions`. Duration: 1 year. Select **Generate token**. Keep the page open: the Client Secret shows only once, and it goes straight into step 8. Never paste it into a chat.
 
-A session creates the Access app itself in step 9.
+A session creates the Access app itself in step 9. It protects every Worker. To protect one project instead, skip that and ask a session to run `scripts/access.sh protect <worker>`.
 
 ## 5. Cloudflare API token
 
@@ -81,9 +80,9 @@ The token needs, on all repositories: **Administration** read and write (create 
 
 Add **Secrets** read and write only when a project first needs an Actions secret, such as a scheduled job's database connection. The `project-secret` workflow tells you when. GitHub never shows secret values, even to this token. Write can set or replace Actions secrets, and the workflow only touches repos with the topic `hatchery`.
 
-## 7. Neon (optional)
+## 7. Neon
 
-Skip this until a project needs Postgres.
+Postgres, the top rung of the ladder. With the key in place, a session can create a database without stopping to ask you.
 
 1. Sign up at console.neon.tech on the Free plan. Onboarding makes you create a first project before anything else. Accept any name; you can delete it afterward.
 2. Account settings > API keys > **Create new API key**. Name: `hatchery`. A personal key, because hatchery creates one Neon project per project; a project-scoped key cannot. Neon keys never expire: rotate yearly.
@@ -99,9 +98,9 @@ At claude.ai/code, open the environment selector under the message box > **New e
    *.<your-domain>
    <your-domain>
    ```
-3. **Network secrets.** The proxy attaches them outside the session, so sessions use them without seeing them. Only the first is required.
+3. **Network secrets.** The proxy attaches them outside the session, so sessions use them without seeing them. The first two are required.
    - Cloudflare. Allowed websites: `api.cloudflare.com`. Header `Authorization`, prefix `Bearer`, value: the step 5 token.
-   - Neon, if you did step 7. Allowed websites: `console.neon.tech`. Header `Authorization`, prefix `Bearer`, value: the step 7 key.
+   - Neon. Allowed websites: `console.neon.tech`. Header `Authorization`, prefix `Bearer`, value: the step 7 key.
    - Access, if you did step 4. Allowed websites: `*.<subdomain>.workers.dev`, with your subdomain from step 3, and `*.<your-domain>` if you have one. The form has refused `*.<subdomain>.workers.dev`; `*.<your-domain>` alone then covers projects on your domain. Never `*.workers.dev`: that sends the token to every Workers site on the internet. Two header rows, prefix cleared: `CF-Access-Client-Id` with the Client ID, and `CF-Access-Client-Secret` with the Client Secret from step 4.
      If the form takes only one header: header `X-Hatchery-Access`, no prefix, value `{"cf-access-client-id":"<ID>","cf-access-client-secret":"<SECRET>"}`. In step 9, ask for `ACCESS_TOKEN_HEADER=X-Hatchery-Access scripts/access.sh init`.
 4. **Environment variables:**
@@ -113,10 +112,11 @@ At claude.ai/code, open the environment selector under the message box > **New e
    HATCHERY_ANALYTICS_TOKEN=<from step 11, or leave this line out>
    CLOUDFLARE_ACCOUNT_ID=<account ID from step 3>
    CLOUDFLARE_API_TOKEN=placeholder
+   NEON_API_KEY=placeholder
    WRANGLER_SEND_METRICS=false
    WRANGLER_SEND_ERROR_REPORTS=false
    ```
-   If you did step 7, also add `NEON_API_KEY=placeholder`. The `HATCHERY_` values are what make hatchery yours: sessions read them, and the repo only names them. The placeholders only make wrangler and neonctl start. `WRANGLER_SEND_ERROR_REPORTS=false` stops wrangler from asking about crash reports.
+   The `HATCHERY_` values are what make hatchery yours: sessions read them, and the repo only names them. The placeholders only make wrangler and neonctl start. `WRANGLER_SEND_ERROR_REPORTS=false` stops wrangler from asking about crash reports.
 5. **Setup script:** paste the contents of `scripts/setup.sh` from this repo. It installs wrangler, neonctl and PyNaCl in about 15 seconds, and the environment caches the result.
 6. **Save.**
 
@@ -159,7 +159,7 @@ Send each in a new hatchery session in `hatchery-build`, in order. Each builds o
 5. **Public and custom domain** (needs step 10): "Make smoke-web public on my domain with analytics." Expect it loads without sign-in and Web Analytics shows the visit. If the deploy fails with an authentication error, add Zone DNS Edit (step 5).
 6. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the status page." It uses one of the account's 5 cron triggers.
 7. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
-8. **Neon, rung 4** (needs step 7): "Create a Neon project for smoke-web and show its row count on the status page."
+8. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the status page."
 9. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
 10. **Clean up:** "Delete smoke-web's Worker, D1 databases, Neon project and cron." Then delete the repo by hand: sessions cannot.
 

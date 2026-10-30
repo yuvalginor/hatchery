@@ -15,7 +15,9 @@ done
 python3 -c 'import nacl' 2>/dev/null && ok "pynacl installed" || bad "pynacl missing: check the setup script"
 
 [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] && ok "CLOUDFLARE_ACCOUNT_ID set" || bad "CLOUDFLARE_ACCOUNT_ID not set"
-[ "${CLOUDFLARE_API_TOKEN:-}" = placeholder ] && ok "CLOUDFLARE_API_TOKEN is the placeholder" || bad "CLOUDFLARE_API_TOKEN must be the word placeholder; the real value is a network secret"
+for var in CLOUDFLARE_API_TOKEN NEON_API_KEY; do
+  [ "${!var:-}" = placeholder ] && ok "$var is the placeholder" || bad "$var must be the word placeholder; the real value is a network secret"
+done
 for var in HATCHERY_OWNER HATCHERY_GIT_NAME HATCHERY_GIT_EMAIL; do
   [ -n "${!var:-}" ] && ok "$var set" || bad "$var not set (SETUP.md, step 8)"
 done
@@ -30,14 +32,10 @@ case "${HATCHERY_GIT_EMAIL:-}" in *@users.noreply.github.com) ok "HATCHERY_GIT_E
 # The open question in SETUP.md: these CLIs send "Authorization: Bearer placeholder". Does the proxy replace it?
 wrangler whoami 2>&1 | grep -q "${CLOUDFLARE_ACCOUNT_ID:-none}" \
   && ok "wrangler whoami: proxy replaces the placeholder" || bad "wrangler whoami failed: see SETUP.md, Fallback for CLI tokens"
-if [ -z "${NEON_API_KEY:-}" ]; then
-  note "Neon not set up: rung 4 is unavailable (SETUP.md, step 7)"
-else
-  [ "$(curl -s -o /dev/null -w '%{http_code}' https://console.neon.tech/api/v2/users/me)" = 200 ] \
-    && ok "Neon key reaches console.neon.tech" || bad "Neon key: check the network secret for console.neon.tech"
-  neonctl me >/dev/null 2>&1 \
-    && ok "neonctl me: proxy replaces the placeholder" || bad "neonctl me failed: see SETUP.md, Fallback for CLI tokens"
-fi
+[ "$(curl -s -o /dev/null -w '%{http_code}' https://console.neon.tech/api/v2/users/me)" = 200 ] \
+  && ok "Neon key reaches console.neon.tech" || bad "Neon key: check the network secret for console.neon.tech"
+neonctl me >/dev/null 2>&1 \
+  && ok "neonctl me: proxy replaces the placeholder" || bad "neonctl me failed: see SETUP.md, Fallback for CLI tokens"
 
 sub=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null)
 [ -n "$sub" ] && ok "workers.dev subdomain: $sub" || bad "No workers.dev subdomain: choose one (SETUP.md, step 3)"

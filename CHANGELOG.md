@@ -2,6 +2,13 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 1.3.1 (2026-10-30)
+
+Neon is required again. Access works per project. No recipes touched.
+
+- `check-env.sh` fails again without Neon, and SETUP.md step 7 is required.
+- `scripts/access.sh protect <worker>` and `unprotect <worker>`: sign-in for one project.
+
 ## 1.3.0 (2026-10-30)
 
 Access and Neon are optional. Touches the docs of `web`; projects need no change.
