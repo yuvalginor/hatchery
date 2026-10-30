@@ -16,7 +16,7 @@ Optional for any web project. Pick it when I will use the app from my phone's ho
 
 ## After copying
 
-- `status.html`, "How to use it": add "Install it: Share, then Add to Home Screen (iPhone), or Install app (Android, desktop Chrome)."
+- `README.md`, "How to use it": add "Install it: Share, then Add to Home Screen (iPhone), or Install app (Android, desktop Chrome)."
 - The manifest uses `public/icons/icon-192.png` and `icon-512.png` from the web recipe. `npm run icons` regenerates them.
 
 ## Tests

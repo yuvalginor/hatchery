@@ -17,7 +17,7 @@ fail() { echo "compose.sh: $*" >&2; exit 1; }
 
 files() { # tracked-style file list of a recipe, without build output
   (cd "$HATCHERY/recipes/$1" && find . -type f \
-    ! -name RECIPE.md ! -name NEEDS ! -path './node_modules/*' ! -path './dist/*' ! -path './reports/*' ! -path './test-results/*' \
+    ! -name RECIPE.md ! -name NEEDS ! -path './node_modules/*' ! -path './dist/*' ! -path './test-results/*' \
     | sed 's|^\./||' | sort)
 }
 

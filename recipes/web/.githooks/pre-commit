@@ -1,8 +1,3 @@
 #!/bin/sh
 # Commits are gated on the full test suite. npm install wires this hook via core.hooksPath.
-# npm run deploy commits status page data right after a full run. That commit changes no code.
-staged=$(git diff --cached --name-only)
-if [ -n "$staged" ] && [ -z "$(printf '%s\n' "$staged" | grep -v '^public/status/')" ]; then
-  exit 0
-fi
 exec npm test
