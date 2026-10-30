@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Removes a project's cloud resources: build triggers, Worker, D1 databases, Neon project.
-# Triggers go first: deleting a Worker leaves them behind, and they need the Worker's id.
+# Triggers go first: deleting a Worker leaves them behind, and they need its id and its Previews' ids.
 # Run it in a hatchery-build session. Without --yes it only lists what it would delete.
 # The GitHub repo stays: sessions cannot delete it. The owner does that by hand.
 #   scripts/delete-project.sh <name> [--yes]
@@ -16,6 +16,16 @@ ACCOUNT=https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID
 
 # Cloudflare rate-limits these calls, so each one waits. The proxy adds the token.
 api() { sleep 2; curl -sS "$@"; }
+# A failed lookup stops the script: "none" must mean none.
+lookup() {
+  local res
+  res=$(api "$2")
+  if [ "$(jq -r .success <<<"$res")" != true ]; then
+    echo "$1 lookup failed: $(jq -c .errors <<<"$res")" >&2
+    exit 1
+  fi
+  printf '%s' "$res"
+}
 remove() {
   local res
   res=$(api -X DELETE "$2")
@@ -26,14 +36,25 @@ remove() {
   echo "Deleted $1."
 }
 
-worker=$(api "$ACCOUNT/workers/workers/$NAME" | jq -r '.result.id // empty')
+res=$(api "$ACCOUNT/workers/workers/$NAME")
+worker=$(jq -r '.result.id // empty' <<<"$res")
+if [ -z "$worker" ] && [ "$(jq -r '.errors[0].code // empty' <<<"$res")" != 10007 ]; then
+  echo "Worker lookup failed: $(jq -c .errors <<<"$res")" >&2
+  exit 1
+fi
 triggers=
 if [ -n "$worker" ]; then
-  triggers=$(api "$ACCOUNT/builds/workers/$worker/triggers" | jq -r '.result[]?.trigger_uuid')
+  previews=$(lookup Previews "$ACCOUNT/workers/workers/$worker/previews?per_page=100" | jq -r '.result[]?.id')
+  # Some Previews have their own trigger, under the Preview's id.
+  for id in $worker $previews; do
+    found=$(lookup Triggers "$ACCOUNT/builds/workers/$id/triggers" | jq -r '.result[]?.trigger_uuid')
+    triggers="$triggers $found"
+  done
 fi
+triggers=$(echo $triggers)
 databases=
 for db in "$NAME" "$NAME-preview"; do
-  id=$(api "$ACCOUNT/d1/database?name=$db" | jq -r --arg db "$db" '.result[]? | select(.name == $db) | .uuid')
+  id=$(lookup D1 "$ACCOUNT/d1/database?name=$db" | jq -r --arg db "$db" '.result[]? | select(.name == $db) | .uuid')
   databases="$databases${id:+$id $db
 }"
 done
@@ -45,7 +66,7 @@ echo "  Triggers: ${triggers:-none}"
 echo "  D1: ${databases:-none}"
 echo "  Neon: ${neon:-none}"
 if [ -z "$worker" ]; then
-  echo "  Any triggers left from a deleted Worker cannot be found by name. Look them up by script_tag in the audit log."
+  echo "  No Worker, so triggers cannot be checked. A Worker deleted in the dashboard can leave them behind."
 fi
 if [ "$YES" != --yes ]; then
   echo "Nothing deleted. Run again with --yes."

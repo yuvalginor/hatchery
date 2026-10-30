@@ -2,6 +2,15 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Version 2.2.1, first real delete
+
+From deleting `habitrabbit`.
+
+- **Worked:** `delete-project.sh` removed the Worker and two triggers, and the audit log confirms it.
+- **Previews can hold triggers.** Three `smoke-web` triggers sat under Preview ids, not the Worker's id. Each appeared with its Preview. `habitrabbit`'s one Preview had none, and why they differ is unknown. The script now checks each Preview. That path is not tested.
+- **An empty trigger list proves little.** The API returns success and an empty list for any id, even a made-up one. Listing Previews first gives real ids.
+- **Silent failures fixed.** A failed lookup used to print "none" and carry on.
+
 ## 2026-10-30: Version 2.2.0, a design of its own
 
 From project `habitrabbit`, which came out close to the `smoke-web` demo.
