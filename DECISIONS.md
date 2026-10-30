@@ -2,6 +2,12 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: Version 2.1.0, deleting a project
+
+- **Tested:** deleting a Worker leaves its build triggers, and the build token survives both. A build on a trigger with no Worker is cancelled in seconds, with no log. So a script removes triggers first, while the Worker's id can still be found.
+- **Not tested:** `delete-project.sh` itself. Only its trigger and Worker calls were tested, one by one.
+- **The token rename may not show.** The Builds API still listed the old name in the test after the owner renamed it. It is cosmetic.
+
 ## 2026-10-30: Version 2.0.0, Cloudflare builds and deploys every push
 
 From project `smoke-web`, the first project through the whole playbook.

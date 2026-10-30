@@ -33,7 +33,7 @@ In the Cloudflare dashboard, open Compute > Workers & Pages.
 
 1. **Change** next to **Your subdomain**. Pick something neutral and short. Every project shares it: URLs look like `<project>.<subdomain>.workers.dev`.
 2. Account Details: copy the **Account ID**. You need it in step 8.
-3. Connect GitHub, so Cloudflare can build your projects. Once only. **Create application** > **Import a repository** > **Connect GitHub**. Install the Cloudflare app with **All repositories**, so new project repos work the moment they exist. Then pick your `hatchery` fork and name the Worker `hatchery-builds`. The build may fail. That is fine: this step creates the build token every project reuses. Then rename it: My Profile > API Tokens > the new build token > edit the name to `hatchery-build`.
+3. Connect GitHub, so Cloudflare can build your projects. Once only. **Create application** > **Import a repository** > **Connect GitHub**. Install the Cloudflare app with **All repositories**, so new project repos work the moment they exist. Then pick your `hatchery` fork and name the Worker `hatchery-builds`. The build may fail. That is fine: this step creates the build token every project reuses. Then rename it: My Profile > API Tokens > the new build token > edit the name to `hatchery-build`. The token stays when its Worker goes, so you can then delete the `hatchery-builds` Worker.
 
 ## 4. Cloudflare: Zero Trust and Access (optional)
 
@@ -185,9 +185,13 @@ For anyone changing hatchery itself. You do not need these to use it. Send each 
 4. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
 5. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the status page."
 6. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
-7. **Clean up:** "Delete smoke-web's Worker, D1 databases, Neon project and cron." Then delete the repo by hand: sessions cannot.
+7. **Clean up:** "Delete project smoke-web." Then delete the repo by hand.
 
 Not checked on purpose: R2 (payment method), iOS and macOS builds (paid Apple membership, 10x Actions minutes).
+
+## Deleting a project
+
+Start a session on hatchery in `hatchery-build` and send: "Delete project <name>." It shows what it will remove and asks first. Do this rather than deleting a Worker in the dashboard: that leaves its build triggers behind. Then delete the GitHub repo by hand.
 
 ## Finding your projects
 
