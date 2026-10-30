@@ -2,6 +2,13 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Updating `habitrabbit` to 3.0.0
+
+- **The update steps said to take `.gitignore` and `index.html` from `web`.** A project's `.gitignore` merges base's lines, so a copy of web's file drops `.env` and `.env.*`. `index.html` carries the project's own header. Both are now edits by hand.
+- **`.claude/rules/web.md` changed in 3.0.0 but was not in the list.** Added.
+- **Checking first helped:** each listed file was compared with the recipe at the project's old version. Unchanged files were taken as they are. Changed files were edited.
+- No version bump: the conventions are the same. Only the steps to reach them changed.
+
 ## 2026-10-31: Version 3.0.0, no status page
 
 - **Why it existed:** proof of how a build was verified, readable on a phone, when sessions deployed directly.

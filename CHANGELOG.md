@@ -11,7 +11,7 @@ The status page is gone. Touches `web`, `web-storage` and `pwa`. Cloudflare trig
 - The pre-commit hook is back to `exec npm test`.
 - "What was built" and "How to use it" move to README.md. Test counts go in the PR and the report.
 
-To update a project: delete `status.html`, `src/status.ts`, `scripts/report.ts` and `public/status/`, and any test that saves status screenshots. Take these `web` files: `index.html`, `vite.config.ts`, `playwright.config.ts`, `.gitignore`, `.githooks/pre-commit`, `src/styles.css` (keep project styles), `scripts/deploy.ts`, `scripts/stamp.ts`, `tests/unit/deploy.test.ts`, `tests/unit/privacy.test.ts`, `tests/e2e/web.spec.ts`. Move the status page text to README.md.
+To update a project: delete `status.html`, `src/status.ts`, `scripts/report.ts` and `public/status/`, and any test that saves status screenshots. Take these `web` files if the project has not changed them: `vite.config.ts`, `playwright.config.ts`, `.githooks/pre-commit`, `scripts/deploy.ts`, `scripts/stamp.ts`, `tests/unit/deploy.test.ts`, `tests/unit/privacy.test.ts`, `tests/e2e/web.spec.ts`, `.claude/rules/web.md`. Edit three by hand: remove the "Build status" footer from `index.html`, the status page styles from `src/styles.css`, and the `reports/` line from `.gitignore`. Never replace `.gitignore`: it also holds base's `.env` lines. Move the status page text to README.md.
 
 ## 2.3.1 (2026-10-31)
 
