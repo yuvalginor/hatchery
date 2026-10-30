@@ -2,6 +2,14 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: Version 2.2.0, a design of its own
+
+From project `habitrabbit`, which came out close to the `smoke-web` demo.
+
+- **Cause:** nothing in the playbook asked for design. The shared styles and the `web-storage` list example were the only guide, and the prompt said to take every default.
+- **Taking every default no longer hides the thinking.** The session posts its proposals and the plan, and carries on. The prompt in README and SETUP.md was hatchery's own, and it taught people to skip kickoff, so it is gone.
+- **Open:** the `web-storage` example still invites copying. Trim it if the rule is not enough.
+
 ## 2026-10-30: Version 2.1.1, a build by hand
 
 From project `habitrabbit`.

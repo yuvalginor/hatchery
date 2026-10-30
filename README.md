@@ -26,7 +26,7 @@ flowchart LR
   deploy --> report([Link and report])
 ```
 
-1. **Kickoff.** The session asks what you're building, what done means, what data it keeps, and whether it needs AI. Each question comes with a suggested answer, so "yes" is often enough.
+1. **Kickoff.** The session asks what you're building, what done means, how it should look, what data it keeps, and whether it needs AI. Each question comes with a suggested answer, so "yes" is often enough.
 2. **Plan.** It walks the [decision tree](DECISION-TREE.md) and climbs only as far as the project needs: a static page with browser storage first, then a Worker, D1, R2 or Postgres when there is a reason.
 3. **Build.** A workflow creates the repo. The session copies in the tested [recipes](recipes/README.md) the tree picked and builds on top of them. Every commit runs the tests.
 4. **Ship.** It deploys a Preview, looks at it on a phone viewport, opens a PR, and reports. You try it and merge.
@@ -49,7 +49,7 @@ You need a GitHub account, Claude Code on the web, and about an hour.
 
 1. Fork this repo and keep the name `hatchery`.
 2. Follow [SETUP.md](SETUP.md): Cloudflare and Neon accounts, three tokens, and one cloud environment that holds everything personal.
-3. Open a session on your fork in the `hatchery-build` environment and say: *"New project my-first-app: a one-page list app. Take every default."*
+3. Open a session on your fork in the `hatchery-build` environment and say: *"New project my-first-app: a one-page list app."* Reply "yes" to its questions, or change a line.
 
 Your name, email, GitHub account and domain live only in your cloud environment. The repo names the variables, never the values, so your fork needs no edits.
 

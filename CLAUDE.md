@@ -19,15 +19,18 @@ Ask in one message, with your proposed answer for each, so I can reply "yes" or 
 
 1. What it is, in one sentence, and who uses it: only me, or others too.
 2. Done means: the artifact, where it runs, and what the visual frontend shows. Define both before building.
-3. Data: what gets saved, and whether it must sync across devices or people.
-4. Does anything run without me: a schedule, a long job, a crawler?
-5. AI features: none, or one of the options in DECISION-TREE.md. Never a paid API without my OK.
-6. Repo name: 1 to 32 characters, lowercase letters, digits, dashes. It becomes the Worker name and the URL.
-7. Private (default) or public.
+3. Look and feel: a specific direction for this app, in one line. Say what it feels like, the main screen, type and colour. Never propose the starter look.
+4. Data: what gets saved, and whether it must sync across devices or people.
+5. Does anything run without me: a schedule, a long job, a crawler?
+6. AI features: none, or one of the options in DECISION-TREE.md. Never a paid API without my OK.
+7. Repo name: 1 to 32 characters, lowercase letters, digits, dashes. It becomes the Worker name and the URL.
+8. Private (default) or public.
+
+If I say to take every default, skip the wait, not the thinking. Post your proposed answers in one message and carry on.
 
 ## 2. Plan
 
-Walk DECISION-TREE.md. Climb only as far as the project needs. Then write the plan as `PLAN.md` in the new repo: goal, done criteria, architecture path with the reason for each service, data shape, test floor, milestones. Show me the plan summary before building anything past the first deploy.
+Walk DECISION-TREE.md. Climb only as far as the project needs. Then write the plan as `PLAN.md` in the new repo: goal, done criteria, architecture path with the reason for each service, data shape, test floor, milestones. Show me the plan summary before building anything past the first deploy, and wait for my OK. If I said to take every default, show it and carry on.
 
 If no branch fits, take the closest, explain it in the project's DECISIONS.md, and after delivery extend DECISION-TREE.md in a hatchery PR.
 
@@ -84,6 +87,7 @@ Only what the plan needs. Every service gets a reason in the project README.
 ## 6. Build
 
 - Work on a branch. Small commits. The pre-commit hook runs every test; never skip it.
+- Design first. The recipe styles and example screens are a working base, not a look. Before building the UI, decide how the app is laid out and used, for this app and its users. Give it its own layout, type and colours, and record the direction in PLAN.md. Build what the idea needs, not the recipe's example with new words.
 - Tests first for logic. Keep the project's test floor (its DECISIONS.md).
 - Data preservation: version field, defaults for new fields, migrations, fixtures for every past shape. Never reset my data unless I ask.
 - Secure by default: OWASP top 10, `el()` or `textContent` instead of `innerHTML`, secrets only server-side.
@@ -98,7 +102,7 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 ## 7. Deploy and verify
 
 1. `npm run deploy` on the branch. It runs the tests, commits the status page data and pushes. Workers Builds repeats the unit tests, scans `dist/` and deploys a Preview. The script waits for it, then runs the read-only smoke tests against it through the proxy. Sessions cannot deploy assets themselves: the proxy overwrites wrangler's upload header.
-2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. Check the status page too. If it doesn't look right, it isn't done.
+2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. Check the status page too. If it doesn't look right, or it looks like the starter with a new colour, it isn't done.
 3. Open a PR: `gh api repos/$HATCHERY_OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. `gh pr` is blocked.
 4. Never merge on your own. I merge, or tell you to. A merge deploys production by itself. Then check out `main`, pull, and run `npm run deploy` to wait for it and check it.
 
