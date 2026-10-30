@@ -60,7 +60,7 @@ The first commit goes straight to `main`: it holds only recipe files, and an emp
 4. For a web project: run `bash scripts/check-env.sh` in hatchery first. It says whether Access is on. Then `bash scripts/connect-builds.sh $NAME` in hatchery. It creates the Worker and connects the repo to Workers Builds. Do this before the first push: the push is what deploys production.
 5. Commit with the hook, then push `main`.
 6. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
-7. For a web project: `npm run deploy` waits for the build and checks the live site. With Access off, a private project has `noindex` and an unlisted URL but no sign-in: say so in the report.
+7. For a web project: `npm run deploy` waits for the build and checks the live site. With Access off, a private project has `noindex` and an unlisted URL but no sign-in: say so in the report. The first push to a new repo can start no build: the commit on GitHub has no "Workers Builds" check. Then run `bash scripts/start-build.sh $NAME` in hatchery and `npm run deploy` again. Start it within a minute of the push, or `npm run deploy` waits its full 10 minutes.
 
 Everything after this goes through a branch and a PR.
 

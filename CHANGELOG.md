@@ -2,6 +2,13 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.1.1 (2026-10-30)
+
+A manual build for a push that started none. No recipes touched.
+
+- New `scripts/start-build.sh <name> [branch]`: starts a Workers Build of the branch's latest commit.
+- CLAUDE.md, step 4.7: use it when the first push to `main` shows no "Workers Builds" check.
+
 ## 2.1.0 (2026-10-30)
 
 A central way to delete a project. No recipes touched.
