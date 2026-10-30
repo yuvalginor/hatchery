@@ -2,6 +2,10 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Version 2.3.1, one approval
+
+From rebuilding `habitrabbit`. Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.
+
 ## 2026-10-31: Version 2.3.0, `habitrabbit` rebuilt
 
 From building `habitrabbit` again on 2.2.1, after the first one was deleted.

@@ -2,6 +2,12 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.3.1 (2026-10-31)
+
+One approval per project. No recipes touched.
+
+- The session posts the plan summary and carries on. It stops only if the plan goes beyond the kickoff answers.
+
 ## 2.3.0 (2026-10-31)
 
 Status page screenshots with data in them. Touches `web-storage`: RECIPE.md and its rules.
