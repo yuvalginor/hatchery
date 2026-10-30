@@ -30,7 +30,7 @@ If I say to take every default, skip the wait, not the thinking. Post your propo
 
 ## 2. Plan
 
-Walk DECISION-TREE.md. Climb only as far as the project needs. Then write the plan as `PLAN.md` in the new repo: goal, done criteria, architecture path with the reason for each service, data shape, test floor, milestones. Show me the plan summary before building anything past the first deploy, and wait for my OK. If I said to take every default, show it and carry on.
+Walk DECISION-TREE.md. Climb only as far as the project needs. Then write the plan as `PLAN.md` in the new repo: goal, done criteria, architecture path with the reason for each service, data shape, test floor, milestones. Post the plan summary and carry on: my kickoff answers are the approval. Stop and ask only if the plan goes beyond them, such as a new service, a payment, or a backend on a project with no sign-in.
 
 If no branch fits, take the closest, explain it in the project's DECISIONS.md, and after delivery extend DECISION-TREE.md in a hatchery PR.
 

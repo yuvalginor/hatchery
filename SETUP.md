@@ -156,7 +156,7 @@ Start a session on hatchery in `hatchery-build` and send:
 
 > New project my-first-app: a one-page list app.
 
-The session asks a few questions, each with a suggested answer. Reply "yes", or change a line. Then it shows a plan: say go. Expect a working link, an app you can install, and a green status page. With Access on, the link asks you to sign in with a code. Then, in a new session, send:
+The session asks a few questions, each with a suggested answer. Reply "yes", or change a line. Expect a working link, an app you can install, and a green status page. With Access on, the link asks you to sign in with a code. Then, in a new session, send:
 
 > In my-first-app, change the title on a branch.
 

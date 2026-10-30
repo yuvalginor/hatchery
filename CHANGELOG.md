@@ -9,6 +9,12 @@ Status page screenshots with data in them. Touches `web-storage`: RECIPE.md and 
 - After copying: add an e2e test that imports sample data and saves a screenshot for the status page.
 - Rule: import into an app with no saved data may skip the confirm.
 
+## 2.2.2 (2026-10-31)
+
+One approval per project. No recipes touched.
+
+- The session posts the plan summary and carries on. It stops only if the plan goes beyond the kickoff answers.
+
 ## 2.2.1 (2026-10-31)
 
 Fixes to `delete-project.sh`. No recipes touched.
