@@ -2,6 +2,13 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.2.1 (2026-10-31)
+
+Fixes to `delete-project.sh`. No recipes touched.
+
+- It also finds triggers that belong to Previews.
+- A failed lookup stops the script, so "none" means none.
+
 ## 2.2.0 (2026-10-30)
 
 Projects get a design of their own. Touches the rules of `web`.
