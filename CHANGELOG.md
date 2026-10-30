@@ -2,6 +2,17 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.0.0 (2026-10-31)
+
+The status page is gone. Touches `web`, `web-storage` and `pwa`. Cloudflare triggers do not change.
+
+- Removed: `status.html`, `src/status.ts`, `scripts/report.ts`, committed test results, the "Build status" link, JSON test reports.
+- `build.json` moves from `dist/status/` to `dist/`.
+- The pre-commit hook is back to `exec npm test`.
+- "What was built" and "How to use it" move to README.md. Test counts go in the PR and the report.
+
+To update a project: delete `status.html`, `src/status.ts`, `scripts/report.ts` and `public/status/`, and any test that saves status screenshots. Take these `web` files: `index.html`, `vite.config.ts`, `playwright.config.ts`, `.gitignore`, `.githooks/pre-commit`, `src/styles.css` (keep project styles), `scripts/deploy.ts`, `scripts/stamp.ts`, `tests/unit/deploy.test.ts`, `tests/unit/privacy.test.ts`, `tests/e2e/web.spec.ts`. Move the status page text to README.md.
+
 ## 2.3.1 (2026-10-31)
 
 One approval per project. No recipes touched.

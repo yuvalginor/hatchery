@@ -11,7 +11,7 @@ const cloudChromium = '/opt/pw-browsers/chromium';
 export default defineConfig({
   testDir: 'tests/e2e',
   forbidOnly: Boolean(process.env.CI),
-  reporter: [['list'], ['json', { outputFile: remote ? 'reports/smoke.json' : 'reports/e2e.json' }]],
+  reporter: 'list',
   use: {
     baseURL,
     launchOptions: existsSync(cloudChromium) ? { executablePath: cloudChromium } : {},

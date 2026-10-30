@@ -2,6 +2,14 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Version 3.0.0, no status page
+
+- **Why it existed:** proof of how a build was verified, readable on a phone, when sessions deployed directly.
+- **Why it went:** it shipped test results to everyone using the app. Since 2.0.0 the results come from before the build, so they prove less. They added hundreds of lines and images to each PR, could conflict between branches, and needed a hook exception.
+- **What replaces it:** test counts in the PR and the session report, the checks on the PR, the session's phone check, and smoke tests on the live URL.
+- **What stays:** `build.json`. `npm run deploy` needs it to know a commit is live. It moved to the site root.
+- Earlier entries here and in CHANGELOG.md still mention the status page. They are history, so they stay.
+
 ## 2026-10-31: Version 2.3.1, one approval
 
 From rebuilding `habitrabbit`. Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.

@@ -25,7 +25,6 @@ describe('privacy check', () => {
     ['me@example.com', 'email address'],
     ['/home/user/project/src', 'local file path'],
   ])('flags sample %# as a secret or leak', (text, rule) => {
-    // The title avoids the sample itself: test titles ship on the status page.
     expect(rules(text)).toContain(rule);
   });
 

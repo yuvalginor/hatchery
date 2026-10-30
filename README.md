@@ -37,7 +37,6 @@ The full playbook the session follows is [CLAUDE.md](CLAUDE.md).
 
 - **Private by default.** `noindex` everywhere, plus a Cloudflare Access sign-in if you turn it on. Public only when you say.
 - **Tests that gate commits.** Unit and end-to-end tests on phone and desktop, in a pre-commit hook and in CI.
-- **A status page** showing what was built and how that exact build was verified, screenshots included.
 - **Your data kept safe.** Versioned saved data, migrations, fixtures for every past shape, export and import.
 - **A privacy check** that scans the build before every deploy: only an allowlist of files ships.
 - **Free tier only.** Anything that needs a payment method stops and asks you first.

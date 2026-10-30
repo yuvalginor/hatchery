@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { checkConfig, isLive, previewName } from '../../scripts/deploy';
-import { e2eSuite, unitSuite } from '../../scripts/report';
 import type { Project } from '../../build/site';
 
 describe('deploy helpers', () => {
@@ -25,15 +24,5 @@ describe('deploy helpers', () => {
     expect(isLive('{"commit":""}', 'abc123')).toBe(false);
     expect(isLive('<html>', 'abc123')).toBe(false);
     expect(isLive('', 'abc123')).toBe(false);
-  });
-
-  it('summarizes test reports for the status page', () => {
-    const unit = unitSuite({ testResults: [{ assertionResults: [{ fullName: 'a', status: 'passed' }, { fullName: 'b', status: 'pending' }] }] });
-    expect(unit).toMatchObject({ passed: 1, skipped: 1, failed: 0 });
-    const e2e = e2eSuite({
-      suites: [{ title: 'app.spec.ts', specs: [{ title: 'loads', tests: [{ projectName: 'phone', status: 'expected' }, { projectName: 'desktop', status: 'unexpected' }] }] }],
-    });
-    expect(e2e).toMatchObject({ passed: 1, failed: 1 });
-    expect(e2e.tests[0].title).toBe('loads (phone)');
   });
 });

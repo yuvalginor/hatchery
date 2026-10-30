@@ -101,9 +101,9 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 
 ## 7. Deploy and verify
 
-1. `npm run deploy` on the branch. It runs the tests, commits the status page data and pushes. Workers Builds repeats the unit tests, scans `dist/` and deploys a Preview. The script waits for it, then runs the read-only smoke tests against it through the proxy. Sessions cannot deploy assets themselves: the proxy overwrites wrangler's upload header.
-2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. Check the status page too. If it doesn't look right, or it looks like the starter with a new colour, it isn't done.
-3. Open a PR: `gh api repos/$HATCHERY_OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. `gh pr` is blocked.
+1. `npm run deploy` on the branch. It runs the tests and pushes. Workers Builds repeats the unit tests, scans `dist/` and deploys a Preview. The script waits for it, then runs the read-only smoke tests against it through the proxy. Sessions cannot deploy assets themselves: the proxy overwrites wrangler's upload header.
+2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. If it doesn't look right, or it looks like the starter with a new colour, it isn't done.
+3. Open a PR: `gh api repos/$HATCHERY_OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. The body gives the test counts. `gh pr` is blocked.
 4. Never merge on your own. I merge, or tell you to. A merge deploys production by itself. Then check out `main`, pull, and run `npm run deploy` to wait for it and check it.
 
 ## 8. Record
@@ -114,7 +114,8 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 ## 9. Report in the session
 
 - What was built and what changed.
-- Links: repo, PR, Preview or production URL, status page.
+- Links: repo, PR, Preview or production URL.
+- Test results: counts, and anything skipped or failing.
 - What to try on my phone.
 - Open questions and anything that needs payment or my decision.
 

@@ -1,6 +1,6 @@
 // Verifies a branch, then hands it to Cloudflare. Workers Builds deploys every push: main goes to
 // production, any other branch gets its own Preview. Sessions cannot deploy assets themselves.
-// On a branch: full test suite, status page data, push. Everywhere: waits for the build,
+// On a branch: full test suite, push. Everywhere: waits for the build,
 // then runs the read-only @smoke tests against the live URL. Usage: npm run deploy
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -24,7 +24,7 @@ export function checkConfig(project: Project, wranglerConfig: string): string[] 
   return problems;
 }
 
-// scripts/stamp.ts writes status/build.json in Cloudflare's build. A match means this commit is live.
+// scripts/stamp.ts writes build.json in Cloudflare's build. A match means this commit is live.
 export function isLive(buildJson: string, commit: string): boolean {
   try {
     const live = JSON.parse(buildJson).commit;
@@ -49,7 +49,7 @@ if (import.meta.main) {
 
   const project: Project = JSON.parse(readFileSync('project.json', 'utf8'));
   const problems = checkConfig(project, readFileSync('wrangler.jsonc', 'utf8'));
-  if (git('status', '--porcelain')) problems.push('Commit your changes first, so the status page matches what ships.');
+  if (git('status', '--porcelain')) problems.push('Commit your changes first, so what ships is what was tested.');
   if (problems.length) {
     console.error(problems.join('\n'));
     process.exit(1);
@@ -58,16 +58,13 @@ if (import.meta.main) {
   const branch = git('rev-parse', '--abbrev-ref', 'HEAD');
   if (branch !== 'main') {
     run('npm', ['test']);
-    run('node', ['scripts/report.ts']);
-    git('add', 'public/status');
-    if (git('diff', '--cached', '--name-only')) git('commit', '-m', 'Update status page data');
     run('git', ['push', '-u', 'origin', branch]);
   }
 
   const url = branch === 'main' ? siteUrl(project) : workersDevUrl(project, previewName(branch, project.name));
   const commit = git('rev-parse', 'HEAD');
   console.log(`Waiting for Cloudflare to build ${commit.slice(0, 7)}.`);
-  for (let waited = 0; !isLive(fetchText(`${url}/status/build.json`), commit); waited += 10) {
+  for (let waited = 0; !isLive(fetchText(`${url}/build.json`), commit); waited += 10) {
     if (waited >= WAIT_SECONDS) {
       console.error(`${commit.slice(0, 7)} is not live on ${url} after ${WAIT_SECONDS} seconds. The "Workers Builds" check on this commit shows why.`);
       process.exit(1);
@@ -76,5 +73,5 @@ if (import.meta.main) {
   }
 
   run('npx', ['playwright', 'test', '--grep', '@smoke'], { BASE_URL: url });
-  console.log(`\nDeployed ${branch} to ${url}\nStatus page: ${url}/status.html`);
+  console.log(`\nDeployed ${branch} to ${url}`);
 }

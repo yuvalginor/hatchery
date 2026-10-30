@@ -156,7 +156,7 @@ Start a session on hatchery in `hatchery-build` and send:
 
 > New project my-first-app: a one-page list app.
 
-The session asks a few questions, each with a suggested answer. Reply "yes", or change a line. Expect a working link, an app you can install, and a green status page. With Access on, the link asks you to sign in with a code. Then, in a new session, send:
+The session asks a few questions, each with a suggested answer. Reply "yes", or change a line. Expect a working link and an app you can install. With Access on, the link asks you to sign in with a code. Then, in a new session, send:
 
 > In my-first-app, change the title on a branch.
 
@@ -181,9 +181,9 @@ For anyone changing hatchery itself. You do not need these to use it. Send each 
 
 1. **Worker and D1, rungs 1 and 2:** "In smoke-web, add a shared counter: a Worker route backed by D1." Without Access, the session asks first, because anyone with the link could change it. Say yes for this test. Expect the Preview to use `smoke-web-preview`, so clicks there never change production.
 2. **Public and custom domain** (needs step 10): "Make smoke-web public on my domain with analytics." Expect it loads without sign-in and Web Analytics shows the visit. If the deploy fails with an authentication error, add Zone DNS Edit (step 5).
-3. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the status page." It uses one of the account's 5 cron triggers.
+3. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the page." It uses one of the account's 5 cron triggers.
 4. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
-5. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the status page."
+5. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the page."
 6. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
 7. **Clean up:** "Delete project smoke-web." Then delete the repo by hand.
 

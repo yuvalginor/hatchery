@@ -22,11 +22,8 @@ export default defineConfig({
   plugins: [sitePlugin(project), ...recipePlugins],
   build: {
     sourcemap: false,
-    rolldownOptions: { input: { main: 'index.html', status: 'status.html' } },
   },
   test: {
     include: ['tests/unit/**/*.test.ts'],
-    reporters: ['default', 'json'],
-    outputFile: { json: 'reports/unit.json' },
   },
 });
