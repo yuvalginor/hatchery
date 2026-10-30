@@ -2,6 +2,15 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.2.0 (2026-10-30)
+
+Projects get a design of their own. Touches the rules of `web`.
+
+- Kickoff asks about look and feel, with a specific proposal.
+- New design rule in the build step, and a check that the app does not look like the starter.
+- Taking every default skips the wait, not the proposals or the plan summary.
+- README and SETUP.md no longer tell people to take every default.
+
 ## 2.1.1 (2026-10-30)
 
 A manual build for a push that started none. No recipes touched.

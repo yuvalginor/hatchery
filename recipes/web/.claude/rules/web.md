@@ -21,4 +21,5 @@
 - Build DOM with `el()` or `textContent`. Never `innerHTML` with dynamic text.
 - No secrets in `src/` or `public/`. Server secrets: `wrangler secret put`.
 - With a backend: D1 changes go through `wrangler d1 migrations`, additive only. Previews bind to a preview database, never production. `@smoke` tests stay read-only.
+- `src/styles.css` is a working base, not a look. Each project gets its own layout, type and colours.
 - Before you finish: update "What was built" and "How to use it" in `status.html`.
