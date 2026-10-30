@@ -33,6 +33,7 @@ In the Cloudflare dashboard, open Compute > Workers & Pages.
 
 1. **Change** next to **Your subdomain**. Pick something neutral and short. Every project shares it: URLs look like `<project>.<subdomain>.workers.dev`.
 2. Account Details: copy the **Account ID**. You need it in step 8.
+3. Connect GitHub, so Cloudflare can build your projects. Once only. **Create application** > **Import a repository** > **Connect GitHub**. Install the Cloudflare app with **All repositories**, so new project repos work the moment they exist. Then pick your `hatchery` fork and name the Worker `hatchery-builds`. The build may fail. That is fine: this step creates the build token every project reuses. Then rename it: My Profile > API Tokens > the new build token > edit the name to `hatchery-build`.
 
 ## 4. Cloudflare: Zero Trust and Access (optional)
 
@@ -51,6 +52,7 @@ My Profile > API Tokens > Create Token > **Create Custom Token**. Name: `hatcher
 | Group | Permission | Access | Why |
 | --- | --- | --- | --- |
 | Account | Workers Scripts | Edit | Deploy Workers, Previews, custom domains, secrets |
+| Account | Workers Builds Configuration | Edit | Connect project repos to Cloudflare builds |
 | Account | D1 | Edit | Create databases, run migrations |
 | Account | Access: Apps and Policies | Edit | The Access app for all Workers, public bypasses |
 | Account | Access: Service Tokens | Edit | Find and rotate the sessions token |
@@ -62,7 +64,7 @@ My Profile > API Tokens > Create Token > **Create Custom Token**. Name: `hatcher
 - Account Resources: Include > your account.
 - Client IP Address Filtering: leave empty. Sessions call from Anthropic's network.
 - TTL: end date one year out. Put a reminder in your calendar.
-- Later, by editing the token: if you set up a custom domain (step 10), add Zone > **Workers Routes** > Edit with Zone Resources: Include > Specific zone > your domain. Add Zone > **DNS** > Edit on that zone only if smoke test 5 fails. Add Account > **Workers R2 Storage** > Edit only if you approve R2.
+- Later, by editing the token: if you set up a custom domain (step 10), add Zone > **Workers Routes** > Edit with Zone Resources: Include > Specific zone > your domain. Add Zone > **DNS** > Edit on that zone only if a custom domain deploy fails with an authentication error. Add Account > **Workers R2 Storage** > Edit only if you approve R2.
 - Never: Billing, Members, Account Settings Edit, API Tokens.
 
 Copy the token. It goes into a network secret in step 8, never into an environment variable.
@@ -148,22 +150,17 @@ Skip this until you want projects at `<project>.<your-domain>`. Your domain's DN
 
 Analytics & Logs > Web Analytics > Add a site > your domain > manual setup. Copy the `token` value from the snippet and set it as `HATCHERY_ANALYTICS_TOKEN` in the environment (step 8). It is public by design: it ships in the page source of public projects. One site covers every subdomain, so public projects share it. Creating one site per project would need Account Settings Edit on the token, which it must not have.
 
-## 12. Smoke tests
+## 12. First project
 
-Send each in a new hatchery session in `hatchery-build`, in order. Each builds on `smoke-web`.
+Start a session on hatchery in `hatchery-build` and send:
 
-1. **Environment:** "Run scripts/check-env.sh." Expect all OK.
-2. **Web app, rung 0:** "New project smoke-web: a one-page list app. Take every default." Expect a working link, an app you can install, and a green status page. With Access on, the link asks you to sign in with a code.
-3. **Branch Preview and PR:** "In smoke-web, change the title on a branch." Expect a Preview URL and a PR that you merge.
-4. **Worker and D1, rungs 1 and 2:** "In smoke-web, add a shared counter: a Worker route backed by D1." Without Access, the session asks first, because anyone with the link could change it. Say yes for this test. Expect the Preview to use `smoke-web-preview`, so clicks there never change production.
-5. **Public and custom domain** (needs step 10): "Make smoke-web public on my domain with analytics." Expect it loads without sign-in and Web Analytics shows the visit. If the deploy fails with an authentication error, add Zone DNS Edit (step 5).
-6. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the status page." It uses one of the account's 5 cron triggers.
-7. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
-8. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the status page."
-9. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
-10. **Clean up:** "Delete smoke-web's Worker, D1 databases, Neon project and cron." Then delete the repo by hand: sessions cannot.
+> New project my-first-app: a one-page list app. Take every default.
 
-Not smoke-tested on purpose: R2 (payment method), iOS and macOS builds (paid Apple membership, 10x Actions minutes).
+Expect a working link, an app you can install, and a green status page. With Access on, the link asks you to sign in with a code. Then, in a new session, send:
+
+> In my-first-app, change the title on a branch.
+
+Expect a Preview URL and a PR. Merge it, and production updates by itself. Setup is done. Features you did not use here get tested when a project first needs them.
 
 ## 13. Research environment (optional)
 
@@ -177,6 +174,20 @@ Not smoke-tested on purpose: R2 (payment method), iOS and macOS builds (paid App
 6. **Save.**
 
 Start a research session on the project repo only, so no other private code is in reach. It pushes its findings to a branch. A session in `hatchery-build` then builds and deploys from them.
+
+## Feature checks (optional)
+
+For anyone changing hatchery itself. You do not need these to use it. Send each in a new session, in order, on one test project named `smoke-web`, after creating it as in step 12.
+
+1. **Worker and D1, rungs 1 and 2:** "In smoke-web, add a shared counter: a Worker route backed by D1." Without Access, the session asks first, because anyone with the link could change it. Say yes for this test. Expect the Preview to use `smoke-web-preview`, so clicks there never change production.
+2. **Public and custom domain** (needs step 10): "Make smoke-web public on my domain with analytics." Expect it loads without sign-in and Web Analytics shows the visit. If the deploy fails with an authentication error, add Zone DNS Edit (step 5).
+3. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the status page." It uses one of the account's 5 cron triggers.
+4. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
+5. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the status page."
+6. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
+7. **Clean up:** "Delete smoke-web's Worker, D1 databases, Neon project and cron." Then delete the repo by hand: sessions cannot.
+
+Not checked on purpose: R2 (payment method), iOS and macOS builds (paid Apple membership, 10x Actions minutes).
 
 ## Finding your projects
 

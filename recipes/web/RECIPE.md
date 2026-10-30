@@ -10,7 +10,7 @@ DECISION-TREE.md branch 1: it can run in a browser. The default for anything wit
 
 - App: `index.html`, `status.html`, `src/main.ts`, `src/dom.ts`, `src/status.ts`, `src/styles.css`, `assets/icon.svg`, `public/icons/`, `public/og.png`.
 - Build: `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `build/site.ts`, `wrangler.jsonc`.
-- Scripts: `scripts/deploy.ts`, `report.ts`, `privacy-check.ts`, `icons.ts`, and `scripts/session-start.d/npm.sh` (installs dependencies).
+- Scripts: `scripts/deploy.ts`, `preview.ts`, `stamp.ts`, `report.ts`, `privacy-check.ts`, `icons.ts`, and `scripts/session-start.d/npm.sh` (installs dependencies).
 - Tests: `playwright.config.ts`, `tests/unit/site.test.ts`, `privacy.test.ts`, `deploy.test.ts`, `tests/e2e/web.spec.ts`.
 - Gates: `.githooks/pre-commit`, `.github/workflows/ci.yml`.
 - Rules: `.claude/rules/web.md`.
@@ -35,4 +35,5 @@ Other recipes plug in by adding files. Nothing in web needs editing:
 ## Tests
 
 - Hook and CI: `npm test`. Typecheck, unit tests, build, e2e on `dist/` under `wrangler dev` (production headers included), privacy check.
-- Deploy: `npm run deploy`. Tests, status page data, privacy check, deploy, `@smoke` tests on the live URL.
+- Cloudflare build: `npm run build:ci`. Typecheck, unit tests, build, commit stamp, privacy check. It has no browser, so e2e tests run in the hook and CI.
+- Deploy: `npm run deploy`. On a branch: tests, status page data, push. Then it waits for the build and runs `@smoke` tests on the live URL.

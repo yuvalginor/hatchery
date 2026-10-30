@@ -2,6 +2,22 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: Version 2.0.0, Cloudflare builds and deploys every push
+
+From project `smoke-web`, the first project through the whole playbook.
+
+- **The block.** `npm run deploy` failed at the static asset upload with 401. Wrangler sends each upload with a short-lived JWT in `Authorization`. The session proxy replaces every `Authorization` header to `api.cloudflare.com` with the account token. Production and Previews both fail. `check-env.sh` missed it because it only tested login.
+- **The choice: Workers Builds.** Cloudflare pulls from GitHub and deploys, so no upload crosses the proxy. It stays on Workers, costs nothing, and adds no Cloudflare token to GitHub. Rejected: deploying from Actions (a token copied to every project), serving files from the Worker (3 MB limit, every file counts against the daily request limit).
+- **Tested on smoke-web.** A session created a Worker, connected the repo, reused one build token and added triggers, all over the API. A push to main deployed production. A push to a branch deployed a Preview with `wrangler preview`, which keeps Preview settings apart from production. `wrangler versions upload` does not, so hatchery does not use it.
+- **Order matters.** A Preview returns 404 until the Worker has had one production deploy, so `connect-builds.sh` runs before the first push to `main`.
+- **Browser tests stay out of the build.** Chromium downloads there but cannot start: `libatk-1.0.so.0` is missing, and the build user has no root to install it. So Cloudflare runs typecheck, unit tests and the privacy check. The hook and CI run everything.
+- **Status page data is committed.** The build cannot produce e2e results or screenshots, so `npm run deploy` commits them to `public/status/` on the branch. Two open branches can conflict on those files; rerun `npm run deploy` after merging `main`. The results name the tested commit, which is the one before the data commit. That commit changes no code, so the hook skips the tests for it.
+- **`status/build.json`.** Cloudflare's build writes the commit it deploys there. `npm run deploy` polls it to know the commit is live.
+- **One manual step remains, once per account.** A build token needs a Cloudflare API token, so a fresh account makes one by importing a repo in the dashboard (SETUP.md, step 3). That exact path with the `hatchery` repo is not tested; a private project repo was.
+- **The build token belongs to the account.** Cloudflare's docs keep it under My Profile > API Tokens and reuse it for later builds. So no project depends on the Worker that created it. Deleting that Worker is not tested yet.
+- **Setup ends with one real project.** Ten smoke tests were too much for setup. Most test features a new user may never touch. They moved to Feature checks in SETUP.md.
+- **Not tested yet:** `connect-builds.sh` as a whole. Its calls were tested one by one. Field names for the repo connection and the triggers come from Cloudflare's published API schema.
+
 ## 2026-10-30: First check-env run
 
 - Org-wide Neon keys cannot call `/api/v2/users/me` or `neonctl me` ("not allowed for organization API keys"). `check-env.sh` lists projects instead. Creating a project with an org-wide key is not tested yet.

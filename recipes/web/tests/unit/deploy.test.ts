@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkConfig, previewName } from '../../scripts/deploy';
+import { checkConfig, isLive, previewName } from '../../scripts/deploy';
 import { e2eSuite, unitSuite } from '../../scripts/report';
 import type { Project } from '../../build/site';
 
@@ -16,6 +16,15 @@ describe('deploy helpers', () => {
     const project = { name: 'demo', workersSubdomain: 'SUBDOMAIN' } as Project;
     expect(checkConfig(project, '{ "name": "other" }')).toHaveLength(2);
     expect(checkConfig({ ...project, workersSubdomain: 'me' }, '{ "name": "demo" }')).toEqual([]);
+  });
+
+  it('knows when a commit is live', () => {
+    expect(isLive('{"commit":"abc123"}', 'abc123')).toBe(true);
+    expect(isLive('{"commit":"abc"}', 'abc123')).toBe(true);
+    expect(isLive('{"commit":"def456"}', 'abc123')).toBe(false);
+    expect(isLive('{"commit":""}', 'abc123')).toBe(false);
+    expect(isLive('<html>', 'abc123')).toBe(false);
+    expect(isLive('', 'abc123')).toBe(false);
   });
 
   it('summarizes test reports for the status page', () => {

@@ -1,7 +1,7 @@
-// Turns the test reports into dist/status/results.json and copies the e2e screenshots next to it,
-// so the deployed status page shows how this exact build was verified. Runs after npm test.
+// Turns the test reports into public/status/results.json and copies the e2e screenshots next to it.
+// npm run deploy commits them, because Cloudflare's build has no browser to produce them.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 type Test = { title: string; status: string };
 
@@ -35,9 +35,10 @@ function summarize(name: string, tests: Test[]) {
 if (import.meta.main) {
   const git = (...args: string[]) => execFileSync('git', args, { encoding: 'utf8' }).trim();
   const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
-  mkdirSync('dist/status', { recursive: true });
+  rmSync('public/status', { recursive: true, force: true });
+  mkdirSync('public/status', { recursive: true });
   const shots = existsSync('reports/screenshots') ? readdirSync('reports/screenshots').filter((f) => f.endsWith('.png')).sort() : [];
-  for (const file of shots) copyFileSync(`reports/screenshots/${file}`, `dist/status/${file}`);
+  for (const file of shots) copyFileSync(`reports/screenshots/${file}`, `public/status/${file}`);
   const results = {
     commit: git('rev-parse', '--short', 'HEAD'),
     branch: git('rev-parse', '--abbrev-ref', 'HEAD'),
@@ -45,6 +46,6 @@ if (import.meta.main) {
     suites: [unitSuite(read('reports/unit.json')), e2eSuite(read('reports/e2e.json'))],
     screenshots: shots.map((file) => ({ file, caption: file.replace(/\.png$/, '').replace(/-/g, ' ') })),
   };
-  writeFileSync('dist/status/results.json', `${JSON.stringify(results, null, 2)}\n`);
-  console.log(`Wrote dist/status/results.json and ${shots.length} screenshot(s).`);
+  writeFileSync('public/status/results.json', `${JSON.stringify(results, null, 2)}\n`);
+  console.log(`Wrote public/status/results.json and ${shots.length} screenshot(s).`);
 }
