@@ -2,6 +2,21 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.0.0 (2026-10-30)
+
+Cloudflare Workers Builds deploys every push. Sessions cannot deploy assets through the proxy. Touches the `web` recipe. Web projects must change.
+
+- New `scripts/connect-builds.sh` in hatchery. Run it before the first push to `main`.
+- New in `web`: `npm run build:ci`, `npm run deploy:preview`, `scripts/stamp.ts`, `scripts/preview.ts`.
+- `npm run deploy` no longer deploys. On a branch it tests, commits status page data and pushes. It then waits for the build and runs the smoke tests.
+- Status page data moves to `public/status/` and is committed.
+- The pre-commit hook skips tests for a commit of only `public/status/`.
+- SETUP.md: connect GitHub in step 3, add Workers Builds Configuration to the token in step 5.
+- SETUP.md: step 12 is one first project. The other smoke tests move to an optional Feature checks section.
+- New README tagline and a logo outline with changing width.
+
+To update a project: copy the `web` files above, then run `scripts/connect-builds.sh <name>`. It updates existing triggers.
+
 ## 1.3.1 (2026-10-30)
 
 Neon is required again. Access works per project. No recipes touched.

@@ -24,7 +24,7 @@ export function renderResults(results: Results): HTMLElement {
     'div',
     {},
     el('p', { class: failed ? 'badge bad' : 'badge good' }, failed ? `${failed} failing` : 'All checks passed'),
-    el('p', {}, `Commit ${results.commit} on ${results.branch}, built ${new Date(results.builtAt).toLocaleString()}.`),
+    el('p', {}, `Tested commit ${results.commit} on ${results.branch}, ${new Date(results.builtAt).toLocaleString()}.`),
     ...results.suites.map((suite) =>
       el(
         'details',
@@ -49,6 +49,6 @@ if (target) {
     .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
     .then((results: Results) => target.replaceChildren(renderResults(results)))
     .catch(() => {
-      target.textContent = 'No verification results in this build. Deploy with npm run deploy to add them.';
+      target.textContent = 'No verification results yet. Run npm run deploy on a branch to add them.';
     });
 }

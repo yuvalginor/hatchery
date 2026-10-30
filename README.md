@@ -4,7 +4,7 @@
 
 <h1 align="center">hatchery</h1>
 
-<p align="center"><strong>Hand Claude an idea. Get a deployed app.</strong></p>
+<p align="center"><strong>From prompt to production, with your own agent.</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
@@ -51,7 +51,7 @@ You need a GitHub account, Claude Code on the web, and about an hour.
 
 1. Fork this repo and keep the name `hatchery`.
 2. Follow [SETUP.md](SETUP.md): Cloudflare and Neon accounts, three tokens, and one cloud environment that holds everything personal.
-3. Open a session on your fork in the `hatchery-build` environment and say: *"New project smoke-web: a one-page list app. Take every default."*
+3. Open a session on your fork in the `hatchery-build` environment and say: *"New project my-first-app: a one-page list app. Take every default."*
 
 Your name, email, GitHub account and domain live only in your cloud environment. The repo names the variables, never the values, so your fork needs no edits.
 
@@ -62,11 +62,11 @@ Your name, email, GitHub account and domain live only in your cloud environment.
 | [CLAUDE.md](CLAUDE.md) | The playbook every session follows. |
 | [DECISION-TREE.md](DECISION-TREE.md) | How a project picks its architecture, with free-plan limits. |
 | [recipes/](recipes/README.md) | Tested project files: `base`, `web`, `web-storage`, `pwa`. |
-| [SETUP.md](SETUP.md) | One-time setup: accounts, tokens, the cloud environment, smoke tests. |
+| [SETUP.md](SETUP.md) | One-time setup: accounts, tokens, the cloud environment, a first project. |
 | [DECISIONS.md](DECISIONS.md) | Why hatchery works the way it does, and what was tested. |
 | [CHANGELOG.md](CHANGELOG.md), [VERSION](VERSION) | Convention versions. Projects record theirs and ask before updating. |
 | `.github/workflows/` | `create-project` makes repos, `project-secret` sets their secrets, `recipes` tests the recipes. |
-| `scripts/` | Composing a project, checking a session, Cloudflare Access, sealing secrets. |
+| `scripts/` | Composing a project, connecting Cloudflare builds, checking a session, Cloudflare Access, sealing secrets. |
 
 ## Limits
 

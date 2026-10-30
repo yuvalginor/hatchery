@@ -45,6 +45,9 @@ apps=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/access/apps" 2>/dev/
 echo "$apps" | jq -e '.result[]? | select(any(.destinations[]?; .type == "all_workers"))' >/dev/null 2>&1 \
   && ok "Access protects all Workers" || note "Access is off: private projects have noindex and an unlisted URL, no sign-in. With Zero Trust set up, run scripts/access.sh init (SETUP.md, step 4)"
 
+[ "$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/builds/tokens" | jq -r '.result | length' 2>/dev/null)" -gt 0 ] 2>/dev/null \
+  && ok "Workers Builds: build token found" || bad "Workers Builds: no build token, or the token lacks Workers Builds Configuration (SETUP.md, steps 3 and 5)"
+
 gh api "repos/${HATCHERY_OWNER:-none}/hatchery/actions/workflows" --jq '.workflows[].path' 2>/dev/null | grep -q create-project \
   && ok "GitHub: create-project workflow reachable" || bad "GitHub: cannot see hatchery workflows"
 

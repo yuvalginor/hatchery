@@ -1,4 +1,4 @@
-# Tests only. Sessions deploy with npm run deploy; CI never holds a Cloudflare token.
+# Tests only. Workers Builds deploys every push; CI never holds a Cloudflare token.
 # Runs on pull requests and main, not on every branch push, to save Actions minutes.
 name: ci
 

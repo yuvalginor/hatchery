@@ -57,9 +57,10 @@ The first commit goes straight to `main`: it holds only recipe files, and an emp
 1. Compose from hatchery: `scripts/compose.sh /home/user/$NAME <recipes>`, with the recipes the tree picked, such as `web web-storage pwa`. It copies `recipes/base`, the recipes in order and the Karpathy skill, and records the hatchery `VERSION` and the recipe list in the project's `project.json`. On a conflict it writes nothing.
 2. In the project: `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash scripts/session-start.sh`. Sessions with several repos skip repo hooks, so run it yourself. It sets my no-reply commit identity and the git hooks, then each recipe's setup, such as `npm ci`.
 3. Do each recipe's "After copying" list in its RECIPE.md: names, `project.json`, README.md, the first DECISIONS.md entry. Write `PLAN.md`.
-4. Commit with the hook, then push `main`.
-5. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
-6. For a web project: run `bash scripts/check-env.sh` in hatchery first. It says whether Access is on. Then `npm run deploy`. With Access off, a private project has `noindex` and an unlisted URL but no sign-in: say so in the report.
+4. For a web project: run `bash scripts/check-env.sh` in hatchery first. It says whether Access is on. Then `bash scripts/connect-builds.sh $NAME` in hatchery. It creates the Worker and connects the repo to Workers Builds. Do this before the first push: the push is what deploys production.
+5. Commit with the hook, then push `main`.
+6. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
+7. For a web project: `npm run deploy` waits for the build and checks the live site. With Access off, a private project has `noindex` and an unlisted URL but no sign-in: say so in the report.
 
 Everything after this goes through a branch and a PR.
 
@@ -78,7 +79,7 @@ Only what the plan needs. Every service gets a reason in the project README.
 - Access off and a private project: anyone with the URL can reach it. Before adding a Worker route, D1, or anything that holds my data or spends a quota, stop and ask me: turn on Access for this project (`scripts/access.sh protect $NAME`, needs SETUP.md step 4), add auth to the Worker, or accept it.
 - R2, Zero Trust seats, Workers Paid, Apple or code-signing certificates: payment. Stop and ask.
 - Public projects: `scripts/access.sh public $NAME` when I say so, plus `"public": true` and `analyticsToken` from `HATCHERY_ANALYTICS_TOKEN` in `project.json`. Add a `sitemap.xml` and real headings for search. Keep SEO in proportion: AI search answers informational queries directly.
-- Custom domain, when I say it is ready to share and `HATCHERY_DOMAIN` is set: add `{"pattern": "$NAME.$HATCHERY_DOMAIN", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, deploy main. Access still applies unless the project is public.
+- Custom domain, when I say it is ready to share and `HATCHERY_DOMAIN` is set: add `{"pattern": "$NAME.$HATCHERY_DOMAIN", "custom_domain": true}` to `routes` in `wrangler.jsonc`, set `url` in `project.json`, merge to main. Access still applies unless the project is public.
 
 ## 6. Build
 
@@ -96,10 +97,10 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 
 ## 7. Deploy and verify
 
-1. `npm run deploy` on the branch. It runs the tests, writes the status page data, scans `dist/`, deploys a Preview, and runs the read-only smoke tests against it through the proxy.
+1. `npm run deploy` on the branch. It runs the tests, commits the status page data and pushes. Workers Builds repeats the unit tests, scans `dist/` and deploys a Preview. The script waits for it, then runs the read-only smoke tests against it through the proxy. Sessions cannot deploy assets themselves: the proxy overwrites wrangler's upload header.
 2. Look at it yourself: open the Preview URL with Playwright on a phone viewport, take a screenshot, read it. Check the status page too. If it doesn't look right, it isn't done.
 3. Open a PR: `gh api repos/$HATCHERY_OWNER/$NAME/pulls -f title=... -f head=$BRANCH -f base=main -f body=...`. `gh pr` is blocked.
-4. Never merge on your own. I merge, or tell you to. After a merge, check out `main`, pull, and `npm run deploy` for production.
+4. Never merge on your own. I merge, or tell you to. A merge deploys production by itself. Then check out `main`, pull, and run `npm run deploy` to wait for it and check it.
 
 ## 8. Record
 
@@ -130,5 +131,6 @@ When a project session learns something every project needs, it opens a PR on ha
 
 - GitHub proxy (tested 2026-10-25): REST only, no GraphQL. Blocks repo creation, repo settings, Actions secrets and variables, releases, and branch deletion. Allows workflow dispatch, runs, jobs, annotations, PRs, and pushes to attached repos.
 - Actions minutes: 2,000 a month across all private repos. macOS counts 10x.
+- Workers Builds free plan: 3,000 build minutes a month, one build at a time. The build machine has no browser and no root, so e2e tests cannot run there.
 - Cloudflare free plan: 5 cron triggers per account (before adding one, count the account's existing triggers with the Cloudflare API and tell me if none is left), 100,000 Worker requests a day, 10 D1 databases.
 - Session network: package registries, GitHub, `*.workers.dev`, `*.$HATCHERY_DOMAIN`, and the network secret hosts.
