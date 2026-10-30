@@ -2,6 +2,15 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: Version 2.1.1, a build by hand
+
+From project `habitrabbit`.
+
+- **Seen:** the first push to `main` of a new, empty repo started no Workers Build. `connect-builds.sh` had run before the push and succeeded. GitHub showed no "Workers Builds" check, and Cloudflare listed no builds for the Worker. The next push, a new branch, built on its own.
+- **Cause unknown.** Likely the push that creates the first branch in an empty repo. `smoke-web` did not hit it. Not reproduced.
+- **The fix works:** `POST /builds/triggers/<uuid>/builds` with the branch and commit started the build, and it deployed production. `start-build.sh` wraps that call. Tested on `habitrabbit` main.
+- **Rejected:** having `npm run deploy` start the build itself. Projects hold no Cloudflare API calls, and a second build of a commit that did start one wastes a build minute.
+
 ## 2026-10-30: Version 2.1.0, deleting a project
 
 - **Tested:** deleting a Worker leaves its build triggers, and the build token survives both. A build on a trigger with no Worker is cancelled in seconds, with no log. So a script removes triggers first, while the Worker's id can still be found.
