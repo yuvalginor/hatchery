@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="assets/logo.svg" width="140" alt="A cracked egg">
+  <img src="assets/logo.svg" width="160" alt="hatchery: a cracked egg above the word hatchery">
 </p>
-
-<h1 align="center">hatchery</h1>
 
 <p align="center"><strong>From prompt to production, with your own agent.</strong></p>
 
@@ -66,7 +64,7 @@ Your name, email, GitHub account and domain live only in your cloud environment.
 | [DECISIONS.md](DECISIONS.md) | Why hatchery works the way it does, and what was tested. |
 | [CHANGELOG.md](CHANGELOG.md), [VERSION](VERSION) | Convention versions. Projects record theirs and ask before updating. |
 | `.github/workflows/` | `create-project` makes repos, `project-secret` sets their secrets, `recipes` tests the recipes. |
-| `scripts/` | Composing a project, connecting Cloudflare builds, checking a session, Cloudflare Access, sealing secrets. |
+| `scripts/` | Composing and deleting projects, connecting Cloudflare builds, checking a session, Cloudflare Access, sealing secrets. |
 
 ## Limits
 

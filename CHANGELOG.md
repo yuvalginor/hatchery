@@ -2,6 +2,14 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 2.1.0 (2026-10-30)
+
+A central way to delete a project. No recipes touched.
+
+- New `scripts/delete-project.sh`: build triggers, Worker, D1 databases, Neon project.
+- CLAUDE.md and SETUP.md say how to use it. Deleting a Worker alone leaves its triggers behind.
+- The logo now holds the word hatchery. The README title is gone.
+
 ## 2.0.0 (2026-10-30)
 
 Cloudflare Workers Builds deploys every push. Sessions cannot deploy assets through the proxy. Touches the `web` recipe. Web projects must change.

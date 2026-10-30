@@ -120,6 +120,15 @@ Later work happens in sessions on the project repo. Its CLAUDE.md asks them to a
 
 When a project session learns something every project needs, it opens a PR on hatchery if attached, otherwise appends to `HATCHERY_INBOX.md` in the project and tells me. In hatchery sessions, fold inbox items from projects into these files when I ask.
 
+## Delete a project
+
+Only when I name the project and ask. It cannot be undone.
+
+1. `bash scripts/delete-project.sh $NAME` lists what it would delete: build triggers, Worker, D1 databases, Neon project.
+2. Show me the list and wait for my yes.
+3. `bash scripts/delete-project.sh $NAME --yes`.
+4. Tell me to delete the GitHub repo by hand. Sessions cannot.
+
 ## Maintaining hatchery
 
 - Conventions are versioned in `VERSION` (semver): major when projects must change code, minor for new conventions or recipe features, patch for fixes. Every bump gets a CHANGELOG.md entry that names the recipes it touches.
