@@ -34,7 +34,7 @@ In the Cloudflare dashboard, open Compute > Workers & Pages.
 1. **Change** next to **Your subdomain**. Pick something neutral and short. Every project shares it: URLs look like `<project>.<subdomain>.workers.dev`.
 2. Account Details: copy the **Account ID**. You need it in step 8.
 
-## 4. Zero Trust and Access (optional)
+## 4. Cloudflare: Zero Trust and Access (optional)
 
 Skip this to go without sign-in. See "Optional parts" above. You can add it later.
 
@@ -65,7 +65,7 @@ My Profile > API Tokens > Create Token > **Create Custom Token**. Name: `hatcher
 - Later, by editing the token: if you set up a custom domain (step 10), add Zone > **Workers Routes** > Edit with Zone Resources: Include > Specific zone > your domain. Add Zone > **DNS** > Edit on that zone only if smoke test 5 fails. Add Account > **Workers R2 Storage** > Edit only if you approve R2.
 - Never: Billing, Members, Account Settings Edit, API Tokens.
 
-Copy the token. It goes into step 8.
+Copy the token. It goes into a network secret in step 8, never into an environment variable.
 
 ## 6. GitHub token HATCHERY_PAT
 
@@ -84,8 +84,8 @@ Add **Secrets** read and write only when a project first needs an Actions secret
 
 Postgres, the top rung of the ladder. With the key in place, a session can create a database without stopping to ask you.
 
-1. Sign up at console.neon.tech on the Free plan. Onboarding makes you create a first project before anything else. Accept any name; you can delete it afterward.
-2. Account settings > API keys > **Create new API key**. Name: `hatchery`. A personal key, because hatchery creates one Neon project per project; a project-scoped key cannot. Neon keys never expire: rotate yearly.
+1. Sign up at console.neon.tech on the Free plan. To skip the onboarding form, go straight to https://console.neon.tech/ after you register.
+2. Account settings > API keys > **Create new API key**. Choose **Org-wide**, because hatchery creates one Neon project per project and a project-scoped key cannot. Name: `hatchery`. Neon keys never expire: rotate yearly.
 
 ## 8. The hatchery-build cloud environment
 
@@ -103,7 +103,7 @@ At claude.ai/code, open the environment selector under the message box > **New e
    - Neon. Allowed websites: `console.neon.tech`. Header `Authorization`, prefix `Bearer`, value: the step 7 key.
    - Access, if you did step 4. Allowed websites: `*.<subdomain>.workers.dev`, with your subdomain from step 3, and `*.<your-domain>` if you have one. The form has refused `*.<subdomain>.workers.dev`; `*.<your-domain>` alone then covers projects on your domain. Never `*.workers.dev`: that sends the token to every Workers site on the internet. Two header rows, prefix cleared: `CF-Access-Client-Id` with the Client ID, and `CF-Access-Client-Secret` with the Client Secret from step 4.
      If the form takes only one header: header `X-Hatchery-Access`, no prefix, value `{"cf-access-client-id":"<ID>","cf-access-client-secret":"<SECRET>"}`. In step 9, ask for `ACCESS_TOKEN_HEADER=X-Hatchery-Access scripts/access.sh init`.
-4. **Environment variables:**
+4. **Environment variables.** Paste these exactly. **`CLOUDFLARE_API_TOKEN` and `NEON_API_KEY` must hold the literal word `placeholder`. Do not put your real tokens here:** sessions can read every environment variable. Real tokens go only in the network secrets above. The proxy swaps the word for the real token on each request.
    ```
    HATCHERY_OWNER=<your GitHub username>
    HATCHERY_GIT_NAME=<your name, as commits should show it>
@@ -126,7 +126,7 @@ Start a session on hatchery in `hatchery-build` and send:
 
 > Run scripts/check-env.sh. If I set up Zero Trust and Access is off, run scripts/access.sh init and run the checks again. Report the result.
 
-Every line should say OK or NOTE. A NOTE marks an optional part you skipped. This also settles whether the proxy replaces the placeholder that `wrangler` and `neonctl` send. If those two checks fail and the `curl` checks pass, see "Fallback for CLI tokens" below.
+Every line should say OK or NOTE. A NOTE marks an optional part you skipped.
 
 ## 10. Custom domain (optional)
 
@@ -181,10 +181,6 @@ Start a research session on the project repo only, so no other private code is i
 ## Finding your projects
 
 Every project repo has the topic `hatchery`. On GitHub, search `user:<username> topic:hatchery`: private repos show only to you. On your laptop, ask Claude, or run `gh repo list --topic hatchery`.
-
-## Fallback for CLI tokens
-
-If `curl` reaches Cloudflare and Neon but `wrangler whoami` or `neonctl me` fail, the proxy adds the secret but does not replace a header the tool already sends. The cleanest fallback: delete that secret and put the real token in the environment variable instead (`CLOUDFLARE_API_TOKEN` or `NEON_API_KEY`). Sessions can then read it, so keep the scopes minimal and the expiry short. Hatchery's own scripts keep working either way.
 
 ## What sessions can and cannot do on GitHub (tested 2026-10-24 and 25)
 

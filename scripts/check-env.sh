@@ -29,13 +29,14 @@ case "${HATCHERY_GIT_EMAIL:-}" in *@users.noreply.github.com) ok "HATCHERY_GIT_E
 [ "$(curl -s "$CF/user/tokens/verify" | jq -r .success 2>/dev/null)" = true ] \
   && ok "Cloudflare token reaches api.cloudflare.com" || bad "Cloudflare token: check the network secret for api.cloudflare.com"
 
-# The open question in SETUP.md: these CLIs send "Authorization: Bearer placeholder". Does the proxy replace it?
+# These CLIs send "Authorization: Bearer placeholder". The proxy replaces it with the network secret.
 wrangler whoami 2>&1 | grep -q "${CLOUDFLARE_ACCOUNT_ID:-none}" \
-  && ok "wrangler whoami: proxy replaces the placeholder" || bad "wrangler whoami failed: see SETUP.md, Fallback for CLI tokens"
-[ "$(curl -s -o /dev/null -w '%{http_code}' https://console.neon.tech/api/v2/users/me)" = 200 ] \
+  && ok "wrangler whoami: proxy replaces the placeholder" || bad "wrangler whoami failed: check the network secret for api.cloudflare.com"
+# Org-wide keys cannot call /users/me or neonctl me, so these list projects instead.
+[ "$(curl -s -o /dev/null -w '%{http_code}' https://console.neon.tech/api/v2/projects)" = 200 ] \
   && ok "Neon key reaches console.neon.tech" || bad "Neon key: check the network secret for console.neon.tech"
-neonctl me >/dev/null 2>&1 \
-  && ok "neonctl me: proxy replaces the placeholder" || bad "neonctl me failed: see SETUP.md, Fallback for CLI tokens"
+neonctl projects list >/dev/null 2>&1 \
+  && ok "neonctl projects list: proxy replaces the placeholder" || bad "neonctl projects list failed: check the network secret for console.neon.tech"
 
 sub=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null)
 [ -n "$sub" ] && ok "workers.dev subdomain: $sub" || bad "No workers.dev subdomain: choose one (SETUP.md, step 3)"
