@@ -2,9 +2,13 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: First check-env run
+
+- Org-wide Neon keys cannot call `/api/v2/users/me` or `neonctl me` ("not allowed for organization API keys"). `check-env.sh` lists projects instead. Creating a project with an org-wide key is not tested yet.
+
 ## 2026-10-30: Version 1.3.1, Neon is required again, Access per project
 
-- **Neon is required again.** Making it optional in 1.3.0 was a mistake: the owner paused that step, and did not ask to change it. With the key in place a session creates a database without stopping, which is the point of hatchery. Its onboarding still forces a first project; any name works.
+- **Neon is required again.** Making it optional in 1.3.0 was a mistake: the owner paused that step, and did not ask to change it. With the key in place a session creates a database without stopping, which is the point of hatchery. Going straight to the console after registering skips its onboarding form.
 - **Access can be turned on for one project.** `init` protects every Worker. The owner wants to add sign-in to a specific project if it ever matters, so `scripts/access.sh protect <worker>` does that with its own Access app. Not tested: it needs Zero Trust, which is not set up.
 
 ## 2026-10-30: Version 1.3.0, Access is optional
@@ -62,7 +66,7 @@ Tested: a repo without the topic is refused, a repo with it passes the guard, an
 ### Settled questions from the brief
 
 **Does the proxy's network secret replace the placeholder `Authorization` header that wrangler and neonctl send?**
-Not settled yet. This build session ran outside `hatchery-build`, with no Cloudflare or Neon access. `scripts/check-env.sh` runs `wrangler whoami` and `neonctl me` and reports the answer; SETUP.md step 9 runs it. Plain `curl` without an auth header works either way, and hatchery's own scripts use that. If the CLIs fail, the fallback is in SETUP.md, "Fallback for CLI tokens".
+Yes. Tested 2026-10-30 in `hatchery-build`: with the variable set to `placeholder`, `wrangler whoami` saw the account and `neonctl projects list` returned. So real tokens never need to be in environment variables, and the fallback that put them there is removed.
 
 **Can a session set a project repo's Actions secrets through the GitHub proxy?**
 No. Tested: every `actions/secrets` and `actions/variables` path returns 403 "Access to this GitHub Actions path is not permitted through this proxy", reads included. Built instead: the `project-secret` workflow. The session seals the value with the target repo's public key (`scripts/seal-secret.py`), so the plaintext never leaves the session. Tested so far: the guard that refuses hatchery itself, and the seal round trip. The current `HATCHERY_PAT` lacks the Secrets permission ("Resource not accessible by personal access token"), so SETUP.md step 6 adds it.
@@ -71,7 +75,7 @@ No. Tested: every `actions/secrets` and `actions/variables` path returns 403 "Ac
 Probably not. The API schema lists only account "Workers Scripts Write" for the custom domain endpoints. Wrangler deploys custom domains through account-level endpoints and lets Cloudflare create the DNS record. Cloudflare's own "Edit Cloudflare Workers" token template has zone "Workers Routes" and no DNS permission. So the token gets zone Workers Routes Edit on my domain and no DNS edit. Smoke test 5 confirms; add DNS Edit on that zone only if it fails.
 
 **Does Neon offer keys narrower than the personal API key?**
-Yes: organization keys and project-scoped keys. A project-scoped key has Editor access to one project and cannot create projects. Hatchery creates one Neon project per hatchery project, so sessions need a personal or organization key. Jobs never get an API key: they get a connection string for their own database role.
+Yes: organization keys and project-scoped keys. A project-scoped key has Editor access to one project and cannot create projects. Hatchery creates one Neon project per hatchery project, so sessions need an org-wide key. Jobs never get an API key: they get a connection string for their own database role.
 
 **Do R2 or Cloudflare Zero Trust require a payment method?**
 Both do. Zero Trust: "Complete your onboarding by selecting a subscription plan and entering your payment details. If you chose the Zero Trust Free plan, this step is still needed but you will not be charged." R2: "Complete the checkout flow to add an R2 subscription to your account." Access needs Zero Trust, and the brief puts every private project behind Access. This is your call; SETUP.md step 4 lays it out. R2 waits until a project needs it.
