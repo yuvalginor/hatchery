@@ -1,6 +1,6 @@
 # Recipe: web
 
-A static web app on Cloudflare Workers static assets, private behind Access and `noindex`.
+A static web app on Cloudflare Workers static assets, private with `noindex`, and behind Access when it is on.
 
 ## When
 

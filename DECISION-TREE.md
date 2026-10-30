@@ -46,7 +46,7 @@ No recipe yet means: build from the notes below. When a second project needs the
 
 ## 1. Can it run in a browser?
 
-Yes is the default. Recipe: [web](recipes/web/RECIPE.md). Vite, TypeScript, static files on Workers static assets, private behind Access. Requests for static assets are free and unlimited. Deviate only with a stated reason.
+Yes is the default. Recipe: [web](recipes/web/RECIPE.md). Vite, TypeScript, static files on Workers static assets, private with `noindex`, and behind Access when it is on. Requests for static assets are free and unlimited. Deviate only with a stated reason.
 
 Add [pwa](recipes/pwa/RECIPE.md) when I will use the app from my phone's home screen or offline.
 
@@ -83,7 +83,7 @@ There is no macOS or iOS recipe.
 
 ## Web ladder
 
-Climb one rung at a time. Each rung needs a stated reason in the project README.
+Climb one rung at a time. Each rung needs a stated reason in the project README. With Access off, rungs 1 and up on a private project need my OK first: anyone with the URL can reach them.
 
 ### 0. Static, browser storage (default)
 
@@ -113,7 +113,7 @@ When a project outgrows SQLite: over 500 MB, or needs Postgres features. One Neo
 
 ## Not covered yet
 
-- User accounts. The first expected case. For a private app that only I use, Cloudflare Access already identifies me: a Worker reads the `Cf-Access-Jwt-Assertion` header. For other people's accounts, choose when it comes up (Supabase is a candidate), then add the branch here.
+- User accounts. The first expected case. For a private app that only I use, with Access on, Cloudflare Access already identifies me: a Worker reads the `Cf-Access-Jwt-Assertion` header. For other people's accounts, choose when it comes up (Supabase is a candidate), then add the branch here.
 
 ## AI features
 

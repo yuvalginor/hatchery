@@ -2,6 +2,17 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-30: Version 1.3.0, Access and Neon are optional
+
+From the first walkthrough of SETUP.md.
+
+- **Access is optional.** Zero Trust wants payment details even on its $0 plan, and sign-in is not essential to every project. Without it, private projects have `noindex` and an unlisted URL. That is not protection: anyone with the link gets in. It is fine for rung 0, where data stays in the browser. On rungs 1 and up the Worker would serve data or spend a quota for anyone with the URL, so the session stops and asks first. `check-env.sh` reports Access as a NOTE, not a failure, and the first deploy no longer needs it.
+- **Neon is optional.** Only rung 4 uses it, and its onboarding forces a first project before a key. A session that needs it and finds no `NEON_API_KEY` stops and asks.
+- **`HATCHERY_PAT` is Administration only.** Contents and Workflows are unused. Secrets is added when a project first needs an Actions secret.
+- **The network secret form refused `*.<subdomain>.workers.dev`.** The Claude Code docs give no reason: they only say a leading `*.` matches every subdomain. Untested: whether any wildcard under `workers.dev` works. It only matters with Access on, so it stays open.
+- **Open internet lives in a separate environment.** `hatchery-research` has Full network access and no network secrets. A session can use a token through the proxy without seeing it, so a hostile page read under Full could misuse it in `hatchery-build`. Keeping the two apart means the session on the open internet has no account to act on. Research and deploying happen in separate sessions.
+- **Neon's agent skill is not installed.** Its onboarding suggests `npx neon skills -y`. Sessions use `neonctl` and the API, and no project needs more yet.
+
 ## 2026-10-29: Version 1.2.0, ready to be public
 
 Hatchery goes public so friends can use it. Three decisions:
