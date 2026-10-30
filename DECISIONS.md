@@ -2,6 +2,16 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Version 2.3.0, `habitrabbit` rebuilt
+
+From building `habitrabbit` again on 2.2.1, after the first one was deleted.
+
+- **The design rule was enough.** The owner asked for "cleaner, flatter, not rabbit themed" at kickoff. The result shares no layout with the `web-storage` example. Trimming the example stays open, but is not urgent.
+- **The first push to `main` built on its own this time.** Same steps as the 2.1.1 case: `connect-builds.sh`, then the first push to a new, empty repo. So that failure is intermittent. `start-build.sh` stays as the fallback.
+- **An empty app makes a poor screenshot.** Rung 0 apps start empty in every test, so the status page showed only an empty state. A test that imports sample data and takes the screenshot fixed it. Now in the `web-storage` RECIPE.md.
+- **Apps that show dates need a fixed clock in e2e tests.** `page.clock.setFixedTime` with `locale` and `timezoneId` in `test.use` made day labels and streaks the same on every run. Not a rule yet: one project.
+- **Ad hoc Playwright scripts inside a project** resolve the project's Playwright, which looks for its own browser build. Pass `executablePath: '/opt/pw-browsers/chromium'`, as `playwright.config.ts` does.
+
 ## 2026-10-31: Version 2.2.1, first real delete
 
 From deleting `habitrabbit`.
