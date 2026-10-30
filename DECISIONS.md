@@ -2,6 +2,10 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Version 2.3.1, one approval
+
+From rebuilding `habitrabbit`. Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.
+
 ## 2026-10-31: Version 2.3.0, `habitrabbit` rebuilt
 
 From building `habitrabbit` again on 2.2.1, after the first one was deleted.
@@ -11,10 +15,6 @@ From building `habitrabbit` again on 2.2.1, after the first one was deleted.
 - **An empty app makes a poor screenshot.** Rung 0 apps start empty in every test, so the status page showed only an empty state. A test that imports sample data and takes the screenshot fixed it. Now in the `web-storage` RECIPE.md.
 - **Apps that show dates need a fixed clock in e2e tests.** `page.clock.setFixedTime` with `locale` and `timezoneId` in `test.use` made day labels and streaks the same on every run. Not a rule yet: one project.
 - **Ad hoc Playwright scripts inside a project** resolve the project's Playwright, which looks for its own browser build. Pass `executablePath: '/opt/pw-browsers/chromium'`, as `playwright.config.ts` does.
-
-## 2026-10-31: Version 2.2.2, one approval
-
-From rebuilding `habitrabbit`. Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.
 
 ## 2026-10-31: Version 2.2.1, first real delete
 
