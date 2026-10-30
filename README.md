@@ -50,7 +50,7 @@ The full playbook the session follows is [CLAUDE.md](CLAUDE.md).
 You need a GitHub account, Claude Code on the web, and about an hour.
 
 1. Fork this repo and keep the name `hatchery`.
-2. Follow [SETUP.md](SETUP.md): a Cloudflare account, two tokens, and one cloud environment that holds everything personal.
+2. Follow [SETUP.md](SETUP.md): Cloudflare and Neon accounts, three tokens, and one cloud environment that holds everything personal.
 3. Open a session on your fork in the `hatchery-build` environment and say: *"New project smoke-web: a one-page list app. Take every default."*
 
 Your name, email, GitHub account and domain live only in your cloud environment. The repo names the variables, never the values, so your fork needs no edits.

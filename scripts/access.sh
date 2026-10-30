@@ -3,6 +3,8 @@
 #   scripts/access.sh init            Once: every Worker in the account, previews included, needs sign-in.
 #                                     Allows me (one-time PIN to my Cloudflare email) and the
 #                                     hatchery-sessions service token, so sessions can check deploys.
+#   scripts/access.sh protect <worker> Puts one Worker behind sign-in, without init.
+#   scripts/access.sh unprotect <worker> Undoes protect.
 #   scripts/access.sh public <worker> Makes one Worker public, when I say a project goes public.
 #   scripts/access.sh private <worker> Undoes public.
 #   scripts/access.sh list            Lists Access apps.
@@ -43,6 +45,25 @@ case "${1:-}" in
       ]} + (if $header == "" then {} else {read_service_tokens_from_header: $header} end)')
     upsert "$ALL_NAME" "$body"
     ;;
+  protect)
+    worker=${2:?usage: access.sh protect <worker>}
+    id=$(cf GET "$ACCOUNT/workers/workers/$worker" | jq -r .id)
+    email=$(cf GET "$CF/user" | jq -r .email)
+    token=$(cf GET "$ACCOUNT/access/service_tokens" | jq -r --arg n "$TOKEN_NAME" '.[] | select(.name == $n) | .id')
+    body=$(jq -n --arg id "$id" --arg name "Hatchery private: $worker" --arg email "$email" --arg token "$token" '{
+      type: "self_hosted", name: $name, session_duration: "720h",
+      destinations: [{type: "worker", worker_id: $id}],
+      policies: ([{name: "Me", decision: "allow", include: [{email: {email: $email}}]}]
+        + (if $token == "" then [] else [{name: "Hatchery sessions", decision: "non_identity", include: [{service_token: {token_id: $token}}]}] end))}')
+    upsert "Hatchery private: $worker" "$body"
+    ;;
+  unprotect)
+    worker=${2:?usage: access.sh unprotect <worker>}
+    id=$(app_id "Hatchery private: $worker")
+    [ -n "$id" ] || fail "$worker has no sign-in of its own."
+    cf DELETE "$ACCOUNT/access/apps/$id" >/dev/null
+    echo "Removed sign-in for $worker."
+    ;;
   public)
     worker=${2:?usage: access.sh public <worker>}
     id=$(cf GET "$ACCOUNT/workers/workers/$worker" | jq -r .id)
@@ -62,7 +83,7 @@ case "${1:-}" in
     cf GET "$ACCOUNT/access/apps" | jq -r '.[] | "\(.name)\t\([.destinations[]?.type] | join(","))"'
     ;;
   *)
-    sed -n '2,9p' "$0"
+    sed -n '2,11p' "$0"
     exit 1
     ;;
 esac
