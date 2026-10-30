@@ -2,6 +2,16 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 1.3.0 (2026-10-30)
+
+Access and Neon are optional. Touches the docs of `web`; projects need no change.
+
+- `check-env.sh` shows skipped optional parts as NOTE instead of failing.
+- With Access off, the first deploy goes ahead, and rungs 1 and up on a private project need the owner's OK.
+- `HATCHERY_PAT` needs only Administration. Secrets is added when a project needs it.
+- Optional `hatchery-research` environment for open-web work: Full network, no network secrets, no deploys.
+- SETUP.md fixed from a real walkthrough.
+
 ## 1.2.0 (2026-10-29)
 
 Ready to be public. Touches the `base` recipe.

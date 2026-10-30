@@ -5,7 +5,7 @@ Tested project files. A new project starts from `base` plus the recipes DECISION
 | Recipe | What it adds | Needs |
 | --- | --- | --- |
 | [base](base/RECIPE.md) | Session start, notes skeletons, `project.json`, inbox. Every project. | |
-| [web](web/RECIPE.md) | Static web app on Cloudflare Workers: Vite, TypeScript, tests, hook, CI, deploy, privacy check, status page, Access and noindex. | base |
+| [web](web/RECIPE.md) | Static web app on Cloudflare Workers: Vite, TypeScript, tests, hook, CI, deploy, privacy check, status page, noindex, Access when it is on. | base |
 | [web-storage](web-storage/RECIPE.md) | Versioned IndexedDB storage with export and import. Rung 0. | web |
 | [pwa](pwa/RECIPE.md) | Service worker and manifest: installable, works offline. | web |
 

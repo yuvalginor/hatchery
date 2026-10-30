@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/cost-free_tier_only-2ea44f" alt="Free tier only">
 </p>
 
-Hatchery turns Claude Code on the web into a build system for personal projects. Open a session on this repo, describe an idea in a sentence, answer a few questions, and the session creates a private repo, builds the app with tests, deploys it behind a sign-in, checks it on a phone screen, and reports back with a link. From your phone, if you like.
+Hatchery turns Claude Code on the web into a build system for personal projects. Open a session on this repo, describe an idea in a sentence, answer a few questions, and the session creates a private repo, builds the app with tests, deploys it, checks it on a phone screen, and reports back with a link. From your phone, if you like.
 
 ## How it works
 
@@ -24,7 +24,7 @@ flowchart LR
   kickoff --> plan[Plan from the decision tree]
   plan --> repo[New private repo]
   repo --> build[Build from tested recipes]
-  build --> deploy[Deploy behind sign-in]
+  build --> deploy[Deploy privately]
   deploy --> report([Link and report])
 ```
 
@@ -37,7 +37,7 @@ The full playbook the session follows is [CLAUDE.md](CLAUDE.md).
 
 ## What every project gets
 
-- **Private by default.** Cloudflare Access sign-in plus `noindex` everywhere. Public only when you say.
+- **Private by default.** `noindex` everywhere, plus a Cloudflare Access sign-in if you turn it on. Public only when you say.
 - **Tests that gate commits.** Unit and end-to-end tests on phone and desktop, in a pre-commit hook and in CI.
 - **A status page** showing what was built and how that exact build was verified, screenshots included.
 - **Your data kept safe.** Versioned saved data, migrations, fixtures for every past shape, export and import.
@@ -50,7 +50,7 @@ The full playbook the session follows is [CLAUDE.md](CLAUDE.md).
 You need a GitHub account, Claude Code on the web, and about an hour.
 
 1. Fork this repo and keep the name `hatchery`.
-2. Follow [SETUP.md](SETUP.md): Cloudflare, Neon, two tokens, and one cloud environment that holds everything personal.
+2. Follow [SETUP.md](SETUP.md): a Cloudflare account, two tokens, and one cloud environment that holds everything personal.
 3. Open a session on your fork in the `hatchery-build` environment and say: *"New project smoke-web: a one-page list app. Take every default."*
 
 Your name, email, GitHub account and domain live only in your cloud environment. The repo names the variables, never the values, so your fork needs no edits.

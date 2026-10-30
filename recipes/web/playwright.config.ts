@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 
-// BASE_URL set: test a deployed site through the session proxy, which adds the Access service token.
+// BASE_URL set: test a deployed site through the session proxy, which adds the Access service token when Access is on.
 // Unset: test dist/ under wrangler dev, which serves it like production, _headers included.
 const remote = Boolean(process.env.BASE_URL);
 const baseURL = process.env.BASE_URL ?? 'http://127.0.0.1:4173';
