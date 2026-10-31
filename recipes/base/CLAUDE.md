@@ -24,5 +24,5 @@ Each recipe the project started from adds its commands and rules in `.claude/rul
 
 - DECISIONS.md: new choices and assumptions. README.md: what it is, where it runs, services and reasons.
 - This file and `.claude/rules/`: anything the next session needs.
-- Lessons for every project: open a PR on hatchery if attached, else append to `HATCHERY_INBOX.md` and tell me.
+- A lesson for hatchery: most stay in DECISIONS.md. It goes further only if it would help a different kind of project and comes from hatchery or a shared tool, not this app's features or design. List it in the report and ask me. After my yes, open a PR on hatchery if attached, else append to `HATCHERY_INBOX.md`. Write a general rule, and never name this project, its features or its URLs: not in files, commits, branches or PRs. Hatchery's CLAUDE.md has the full rules.
 - Report in the session: what changed, where to see it, what to try.

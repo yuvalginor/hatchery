@@ -2,6 +2,17 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.1.0 (2026-10-31)
+
+Projects keep to themselves. Touches `base`, `web` and `pwa`. No code changes.
+
+- `base`: a lesson goes to hatchery only if it is general, only after my yes, and never names a project. CLAUDE.md has the rules.
+- `web` rule: no `style` attributes under the CSP. Set CSS custom properties from script.
+- `pwa` rule: an installed iOS app has no address bar, so anything a link carries in also needs a paste field.
+- DECISION-TREE.md: applying migrations to a preview database and to the local database.
+
+To update a project: replace the lessons line in `CLAUDE.md`, the first paragraph of `HATCHERY_INBOX.md`, and add the two rule lines to `.claude/rules/web.md` and `.claude/rules/pwa.md`.
+
 ## 3.0.0 (2026-10-31)
 
 The status page is gone. Touches `web`, `web-storage` and `pwa`. Cloudflare triggers do not change.

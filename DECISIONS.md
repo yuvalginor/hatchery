@@ -2,7 +2,14 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
-## 2026-10-31: Updating `habitrabbit` to 3.0.0
+## 2026-10-31: Version 3.1.0, projects keep to themselves
+
+- **What went wrong:** project sessions sent lessons straight to hatchery. They named projects, told the story of one build, and added one app's design as guidance.
+- **The rule:** a lesson must be general, come from hatchery or a shared tool, and be a fact or a fix. The owner approves it first. It names no project in files, commits, branches or PRs.
+- **One project's design stays there.** It reaches hatchery when a second project needs it.
+- **Not enforced by a check.** Project names are private, so a public test cannot list them.
+
+## 2026-10-31: Updating a project to 3.0.0
 
 - **The update steps said to take `.gitignore` and `index.html` from `web`.** A project's `.gitignore` merges base's lines, so a copy of web's file drops `.env` and `.env.*`. `index.html` carries the project's own header. Both are now edits by hand.
 - **`.claude/rules/web.md` changed in 3.0.0 but was not in the list.** Added.
@@ -19,30 +26,30 @@ Choices, assumptions and test results for hatchery itself. Newest first. Project
 
 ## 2026-10-31: Version 2.3.1, one approval
 
-From rebuilding `habitrabbit`. Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.
+Version 2.2.0 made the session wait for an OK on the plan after kickoff. The owner had already approved those answers, so the wait added nothing. Kickoff is now the approval.
 
-## 2026-10-31: Version 2.3.0, `habitrabbit` rebuilt
+## 2026-10-31: Version 2.3.0, a second full build
 
-From building `habitrabbit` again on 2.2.1, after the first one was deleted.
+From a second full build on 2.2.1.
 
-- **The design rule was enough.** The owner asked for "cleaner, flatter, not rabbit themed" at kickoff. The result shares no layout with the `web-storage` example. Trimming the example stays open, but is not urgent.
+- **The design rule was enough.** The owner gave a specific look at kickoff. The result shares no layout with the `web-storage` example. Trimming the example stays open, but is not urgent.
 - **The first push to `main` built on its own this time.** Same steps as the 2.1.1 case: `connect-builds.sh`, then the first push to a new, empty repo. So that failure is intermittent. `start-build.sh` stays as the fallback.
 - **An empty app makes a poor screenshot.** Rung 0 apps start empty in every test, so the status page showed only an empty state. A test that imports sample data and takes the screenshot fixed it. Now in the `web-storage` RECIPE.md.
-- **Apps that show dates need a fixed clock in e2e tests.** `page.clock.setFixedTime` with `locale` and `timezoneId` in `test.use` made day labels and streaks the same on every run. Not a rule yet: one project.
+- **Apps that show dates need a fixed clock in e2e tests.** `page.clock.setFixedTime` with `locale` and `timezoneId` in `test.use` made dates the same on every run. Not a rule yet: one project.
 - **Ad hoc Playwright scripts inside a project** resolve the project's Playwright, which looks for its own browser build. Pass `executablePath: '/opt/pw-browsers/chromium'`, as `playwright.config.ts` does.
 
 ## 2026-10-31: Version 2.2.1, first real delete
 
-From deleting `habitrabbit`.
+From the first delete of a full project.
 
 - **Worked:** `delete-project.sh` removed the Worker and two triggers, and the audit log confirms it.
-- **Previews can hold triggers.** Three `smoke-web` triggers sat under Preview ids, not the Worker's id. Each appeared with its Preview. `habitrabbit`'s one Preview had none, and why they differ is unknown. The script now checks each Preview. That path is not tested.
+- **Previews can hold triggers.** Three `smoke-web` triggers sat under Preview ids, not the Worker's id. Each appeared with its Preview. Another project's one Preview had none, and why they differ is unknown. The script now checks each Preview. That path is not tested.
 - **An empty trigger list proves little.** The API returns success and an empty list for any id, even a made-up one. Listing Previews first gives real ids.
 - **Silent failures fixed.** A failed lookup used to print "none" and carry on.
 
 ## 2026-10-30: Version 2.2.0, a design of its own
 
-From project `habitrabbit`, which came out close to the `smoke-web` demo.
+A project came out close to the `smoke-web` demo.
 
 - **Cause:** nothing in the playbook asked for design. The shared styles and the `web-storage` list example were the only guide, and the prompt said to take every default.
 - **Taking every default no longer hides the thinking.** The session posts its proposals and the plan, and carries on. The prompt in README and SETUP.md was hatchery's own, and it taught people to skip kickoff, so it is gone.
@@ -50,11 +57,9 @@ From project `habitrabbit`, which came out close to the `smoke-web` demo.
 
 ## 2026-10-30: Version 2.1.1, a build by hand
 
-From project `habitrabbit`.
-
 - **Seen:** the first push to `main` of a new, empty repo started no Workers Build. `connect-builds.sh` had run before the push and succeeded. GitHub showed no "Workers Builds" check, and Cloudflare listed no builds for the Worker. The next push, a new branch, built on its own.
 - **Cause unknown.** Likely the push that creates the first branch in an empty repo. `smoke-web` did not hit it. Not reproduced.
-- **The fix works:** `POST /builds/triggers/<uuid>/builds` with the branch and commit started the build, and it deployed production. `start-build.sh` wraps that call. Tested on `habitrabbit` main.
+- **The fix works:** `POST /builds/triggers/<uuid>/builds` with the branch and commit started the build, and it deployed production. `start-build.sh` wraps that call. Tested on a project's `main`.
 - **Rejected:** having `npm run deploy` start the build itself. Projects hold no Cloudflare API calls, and a second build of a commit that did start one wastes a build minute.
 
 ## 2026-10-30: Version 2.1.0, deleting a project

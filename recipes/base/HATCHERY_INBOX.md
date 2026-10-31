@@ -1,3 +1,3 @@
 # Hatchery inbox
 
-Lessons from this project that every project needs. Sessions append here when hatchery is not attached, and tell me. A hatchery session folds them into hatchery and clears this file.
+General lessons for hatchery, after my yes, when hatchery is not attached. Most lessons belong in DECISIONS.md instead. Write each one as a general rule, with no project names, features or URLs. A hatchery session folds them in and clears this file.

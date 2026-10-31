@@ -109,7 +109,7 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 ## 8. Record
 
 - Project DECISIONS.md and CLAUDE.md: what the next session needs.
-- Lessons for every project: update these files in a hatchery branch and open a PR on hatchery. If it changes conventions, bump `VERSION` and add a CHANGELOG.md entry.
+- Lessons for hatchery: follow "Changing hatchery from a project". Most lessons stay in the project.
 
 ## 9. Report in the session
 
@@ -123,7 +123,27 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 
 Later work happens in sessions on the project repo. Its CLAUDE.md asks them to attach hatchery read-only and compare `VERSION` with `hatchery.version` in the project's `project.json`. A newer version means: show me the CHANGELOG entries and ask. Never update automatically. `hatchery.recipes` says which recipe changes apply.
 
-When a project session learns something every project needs, it opens a PR on hatchery if attached, otherwise appends to `HATCHERY_INBOX.md` in the project and tells me. In hatchery sessions, fold inbox items from projects into these files when I ask.
+In hatchery sessions, fold inbox items from projects into these files when I ask. The rules below apply to each item.
+
+## Changing hatchery from a project
+
+Hatchery is a general tool. A project is one user of it. Most of what a project teaches stays in the project's DECISIONS.md.
+
+A lesson goes to hatchery only if all three are true:
+
+1. It would help a different kind of project, not only one like this.
+2. It comes from hatchery or a shared tool: a recipe, a script, this playbook, the session proxy, or a service in DECISION-TREE.md. It does not come from this app's features or design.
+3. It is a fact or a fix: a step was wrong, or a tool behaved in a way the next project will hit. A design that worked once is not a pattern. It waits until a second project needs it.
+
+If unsure, it stays in the project.
+
+When a lesson passes:
+
+- List it in the report and ask me. Open a PR on hatchery only after my yes. Without hatchery attached, append it to `HATCHERY_INBOX.md` and tell me.
+- Make the smallest change: a line in the right place. Never add a section, rung or pattern for one project.
+- Write it as a general rule in the voice of the file around it. State the rule, not the story. Write "`wrangler d1 migrations apply` cannot see bindings under `previews`", never "Built in project X. What worked:".
+- Name no project. No project names, URLs, app features or user data, anywhere: files, commit messages, branch names, PR titles and bodies, CHANGELOG.md. Write "a project" if you must. Only hatchery's own test projects, such as `smoke-web`, may be named.
+- If it changes conventions, bump `VERSION` and add a CHANGELOG.md entry.
 
 ## Delete a project
 
