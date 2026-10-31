@@ -103,6 +103,8 @@ For a secret, an API proxy, or small server logic. Add `"main"` to `wrangler.jso
 
 For data shared across devices or people. Free plan: 10 databases, 500 MB each, 5 GB total, 5 million rows read and 100,000 rows written a day, 7 days of Time Travel. Schema changes go through `wrangler d1 migrations`, additive only. Bind Previews to a separate preview database, never production.
 
+`wrangler d1 migrations apply` cannot see bindings under `previews`. For the preview database, use a temporary config that holds only that database and `migrations_dir`, and pass `-c <file>`. `wrangler dev` needs the local schema first: prefix the Playwright `webServer` command with `npx wrangler d1 migrations apply DB --local &&`.
+
 ### 3. R2
 
 For files. Free tier: 10 GB-month, 1 million Class A and 10 million Class B operations a month, free egress. R2 needs an R2 subscription with a payment method on file, even at zero usage. Ask me before the first project uses it. Until then, small files fit in D1 (2 MB per row).
