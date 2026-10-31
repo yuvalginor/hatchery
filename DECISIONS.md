@@ -2,6 +2,15 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-10-31: Touch gestures, from `habitrabbit`'s month mode
+
+Observations, not conventions yet: one project. No version bump.
+
+- **Scripted scrolling is not a finger.** `window.scrollBy` and Playwright's `mouse.wheel` passed every test, and the feature did nothing on a real phone. Raw touch events over CDP go through Chrome's own touch scrolling, momentum included: `Input.dispatchTouchEvent` with `touchStart`, several `touchMove` and `touchEnd`, on a context with `hasTouch`. `Input.synthesizeScrollGesture` with touch did not scroll at all in headless Chrome.
+- **A UI that reacts when the scroll ends feels slow on a phone.** `scrollend` fires only after the finger lifts and the momentum stops. Anything that should follow the finger has to be native: `position: sticky`, scroll snapping, scroll-driven animations. A custom drag gesture is the other way, and costs much more.
+- **Snapping and code that moves the page fight.** Scroll snapping re-snaps after layout changes, to the stop it last used. Turn it off while the code moves the page, then point it at the right element.
+- **Playwright clicks during a view transition retry by scrolling.** That scroll can trigger scroll handlers. Mark a switch in progress on the page (a `data-` attribute) and have tests wait for it to clear.
+
 ## 2026-10-31: Updating `habitrabbit` to 3.0.0
 
 - **The update steps said to take `.gitignore` and `index.html` from `web`.** A project's `.gitignore` merges base's lines, so a copy of web's file drops `.env` and `.env.*`. `index.html` carries the project's own header. Both are now edits by hand.
