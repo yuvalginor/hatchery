@@ -4,3 +4,4 @@
 - Bump `CACHE` in `public/sw.js` when the caching logic changes, so old caches are dropped.
 - Never cache `/api/` responses.
 - An app installed on iOS keeps its storage apart from Safari. Tell me when that matters.
+- An app installed on iOS has no address bar. Anything a link carries into the app, such as an invite, also needs a field in the app to paste it.

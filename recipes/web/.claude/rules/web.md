@@ -18,6 +18,7 @@
 
 - Run `npm run deploy` on every branch and send me the Preview URL. A merge deploys `main` by itself: run `npm run deploy` there to wait for it and check it.
 - Build DOM with `el()` or `textContent`. Never `innerHTML` with dynamic text.
+- The CSP has `style-src 'self'`: no `style` attributes. Set dynamic values from script with `element.style.setProperty('--name', value)` and read them in CSS.
 - No secrets in `src/` or `public/`. Server secrets: `wrangler secret put`.
 - With a backend: D1 changes go through `wrangler d1 migrations`, additive only. Previews bind to a preview database, never production. `@smoke` tests stay read-only.
 - `src/styles.css` is a working base, not a look. Each project gets its own layout, type and colours.

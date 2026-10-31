@@ -2,6 +2,16 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.1.0 (2026-10-31)
+
+Lessons from `basket`, the first project with a Worker route and D1. Touches the rules of `web` and `pwa`. No code changes.
+
+- `web` rule: no `style` attributes under the CSP; set CSS custom properties from script.
+- `pwa` rule: an installed iOS app has no address bar, so links into it need a paste field too.
+- DECISION-TREE.md: notes for rung 2 (preview migrations, local D1 for e2e, D1 unit tests on `node:sqlite`, local-first sync) and a household key for sharing with Access off.
+
+To update a project: add the two rule lines to `.claude/rules/web.md` and `.claude/rules/pwa.md`.
+
 ## 3.0.0 (2026-10-31)
 
 The status page is gone. Touches `web`, `web-storage` and `pwa`. Cloudflare triggers do not change.

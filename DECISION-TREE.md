@@ -103,6 +103,14 @@ For a secret, an API proxy, or small server logic. Add `"main"` to `wrangler.jso
 
 For data shared across devices or people. Free plan: 10 databases, 500 MB each, 5 GB total, 5 million rows read and 100,000 rows written a day, 7 days of Time Travel. Schema changes go through `wrangler d1 migrations`, additive only. Bind Previews to a separate preview database, never production.
 
+Built by hand in `basket` (2026-10-31). What worked:
+
+- Binding `DB` at the top level, and the preview database under `previews.d1_databases`.
+- `wrangler d1 migrations apply` cannot see bindings under `previews`. Apply them to the preview database with a temporary config that holds only that database and `migrations_dir`, plus `-c <file>`.
+- `wrangler dev` needs the local schema first: prefix the Playwright `webServer` command with `npx wrangler d1 migrations apply DB --local &&`.
+- Unit tests run the API on `node:sqlite` with the real migration files, behind a small D1-shaped interface. Workers Builds runs them too.
+- Local-first sync for a few devices: each record carries `updatedAt`, last writer wins, deletes are tombstones, the server stamps a per-household `rev`, and phones pull after the last `rev` they saw. Polling every few seconds while visible stays far under the free request limit.
+
 ### 3. R2
 
 For files. Free tier: 10 GB-month, 1 million Class A and 10 million Class B operations a month, free egress. R2 needs an R2 subscription with a payment method on file, even at zero usage. Ask me before the first project uses it. Until then, small files fit in D1 (2 MB per row).
@@ -114,6 +122,7 @@ When a project outgrows SQLite: over 500 MB, or needs Postgres features. One Neo
 ## Not covered yet
 
 - User accounts. The first expected case. For a private app that only I use, with Access on, Cloudflare Access already identifies me: a Worker reads the `Cf-Access-Jwt-Assertion` header. For other people's accounts, choose when it comes up (Supabase is a candidate), then add the branch here.
+- A few people sharing one data set, with Access off: a household key. One tap creates 32 random bytes, shared as a link with the key in the URL fragment (`#join=`), which never reaches a server. The Worker checks it as a bearer token and D1 stores only its SHA-256. Add size and count limits per key instead of accounts. First used by `basket`.
 
 ## AI features
 
