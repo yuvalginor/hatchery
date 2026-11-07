@@ -2,6 +2,16 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.2.0 (2026-11-07)
+
+An optional private meta repo. Touches `base`.
+
+- New optional variable `HATCHERY_META`: the name of a private repo with my preferences and anything else I keep across projects. Kickoff reads its `PREFERENCES.md` and registers new projects as its CLAUDE.md says.
+- `base`: project sessions attach the meta repo read-only when `HATCHERY_META` is set, and follow its CLAUDE.md.
+- `check-env.sh` reports `HATCHERY_META` as a NOTE when unset.
+
+To update a project: add the `HATCHERY_META` line under step 2 of "Start of every session" in `CLAUDE.md`, from `recipes/base/CLAUDE.md`.
+
 ## 3.1.0 (2026-10-31)
 
 Projects keep to themselves. Touches `base`, `web` and `pwa`. No code changes.

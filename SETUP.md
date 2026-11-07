@@ -112,6 +112,7 @@ At claude.ai/code, open the environment selector under the message box > **New e
    HATCHERY_GIT_EMAIL=<your no-reply address from step 1>
    HATCHERY_DOMAIN=<your domain, or leave this line out>
    HATCHERY_ANALYTICS_TOKEN=<from step 11, or leave this line out>
+   HATCHERY_META=<your private meta repo, or leave this line out>
    CLOUDFLARE_ACCOUNT_ID=<account ID from step 3>
    CLOUDFLARE_API_TOKEN=placeholder
    NEON_API_KEY=placeholder

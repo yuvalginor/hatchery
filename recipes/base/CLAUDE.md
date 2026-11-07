@@ -8,6 +8,7 @@ Each recipe the project started from adds its commands and rules in `.claude/rul
 
 1. Check hatchery. Attach `$HATCHERY_OWNER/hatchery` with `add_repo` (read). If its `VERSION` is newer than `hatchery.version` in `project.json`, show me its CHANGELOG.md entries since ours and ask whether to update. Never update on your own.
 2. Read DECISIONS.md.
+   If `HATCHERY_META` is set, attach `$HATCHERY_OWNER/$HATCHERY_META` read-only and follow what its CLAUDE.md says for project sessions.
 3. In a cloud session, `scripts/session-start.sh` sets the commit identity and git hooks, then runs each recipe's setup in `scripts/session-start.d/`. Sessions with several repos skip repo hooks; then run it yourself: `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash scripts/session-start.sh`.
 
 ## Rules

@@ -2,6 +2,12 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-11-07: Version 3.2.0, an optional private meta repo
+
+- **The need:** one place for my project list, ideas per project, and preferences that are mine rather than hatchery's. The 1.2.0 decision kept the registry out of this public repo. That reason stands.
+- **The answer:** a private repo, named by `HATCHERY_META`. Hatchery knows only the variable. The meta repo's own CLAUDE.md says how sessions use it, so hatchery does not depend on its API or layout.
+- **Unset means no change.** A fork without a meta repo works as before.
+
 ## 2026-10-31: Version 3.1.0, projects keep to themselves
 
 - **What went wrong:** project sessions sent lessons straight to hatchery. They named projects, told the story of one build, and added one app's design as guidance.

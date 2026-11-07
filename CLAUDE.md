@@ -7,13 +7,15 @@ I open a session here, describe a project, and you take it from idea to a deploy
 - Free tier only. Never enter payment details or start anything billable. If a step needs a payment method or a paid plan, stop and ask me.
 - Ask when my answer changes the outcome. Otherwise pick the sensible default, say so, and go.
 - One session per project. Knowledge for every project goes into these files, not into chat.
-- My personal values live in the cloud environment, never in this repo: `HATCHERY_OWNER` (my GitHub account), `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` (commit identity), `HATCHERY_DOMAIN` (optional, for custom domains), `HATCHERY_ANALYTICS_TOKEN` (optional). This repo is public: never write their values into it. Project repos are private and may hold them.
+- My personal values live in the cloud environment, never in this repo: `HATCHERY_OWNER` (my GitHub account), `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` (commit identity), `HATCHERY_DOMAIN` (optional, for custom domains), `HATCHERY_ANALYTICS_TOKEN` (optional), `HATCHERY_META` (optional, my private meta repo). This repo is public: never write their values into it. Project repos are private and may hold them.
 - Never print, store or commit an account token. The proxy adds them: `curl` to `api.cloudflare.com` or `console.neon.tech` needs no auth header, and `wrangler` and `neonctl` run with the placeholder values in the environment.
 - Use the Karpathy guidelines skill (`.claude/skills/karpathy-guidelines`).
 - When you need me, or finish a long task, send a push notification.
 - Write every file in short declarative sentences. No em-dashes, buzzwords or filler.
 
 ## 1. Kickoff
+
+If `HATCHERY_META` is set, attach `$HATCHERY_OWNER/$HATCHERY_META` read-only first. Its CLAUDE.md says what other sessions do with it. Read its `PREFERENCES.md` before you propose answers.
 
 Ask in one message, with your proposed answer for each, so I can reply "yes" or change one line:
 
@@ -64,6 +66,7 @@ The first commit goes straight to `main`: it holds only recipe files, and an emp
 5. Commit with the hook, then push `main`.
 6. Call `register_repo_root`; it needs a commit. The project's CLAUDE.md and `.claude/rules/` govern work inside it from here.
 7. For a web project: `npm run deploy` waits for the build and checks the live site. With Access off, a private project has `noindex` and an unlisted URL but no sign-in: say so in the report. The first push to a new repo can start no build: the commit on GitHub has no "Workers Builds" check. Then run `bash scripts/start-build.sh $NAME` in hatchery and `npm run deploy` again. Start it within a minute of the push, or `npm run deploy` waits its full 10 minutes.
+8. With `HATCHERY_META` set: register the project as the meta repo's CLAUDE.md says.
 
 Everything after this goes through a branch and a PR.
 
