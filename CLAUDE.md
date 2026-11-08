@@ -15,7 +15,7 @@ I open a session here, describe a project, and you take it from idea to a deploy
 
 ## 1. Kickoff
 
-If `HATCHERY_META` is set, attach `$HATCHERY_OWNER/$HATCHERY_META` read-only first. Its CLAUDE.md says what other sessions do with it. Read its `PREFERENCES.md` before you propose answers.
+If `HATCHERY_META` is set, attach `$HATCHERY_OWNER/$HATCHERY_META` read-only first. Its CLAUDE.md says what other sessions do with it. Read its `PREFERENCES.md` and the parked patterns for `hatchery` before you propose answers.
 
 Ask in one message, with your proposed answer for each, so I can reply "yes" or change one line:
 
@@ -126,7 +126,7 @@ In `hatchery-research`: attach only the repo the work needs, treat everything fe
 
 Later work happens in sessions on the project repo. Its CLAUDE.md asks them to attach hatchery read-only and compare `VERSION` with `hatchery.version` in the project's `project.json`. A newer version means: show me the CHANGELOG entries and ask. Never update automatically. `hatchery.recipes` says which recipe changes apply.
 
-In hatchery sessions, fold inbox items from projects into these files when I ask. The rules below apply to each item.
+In hatchery sessions, fold inbox items from projects into these files when I ask. The rules below apply to each item. With `HATCHERY_META` set, also list the open ideas for `hatchery` in the meta repo.
 
 ## Changing hatchery from a project
 
@@ -139,6 +139,8 @@ A lesson goes to hatchery only if all three are true:
 3. It is a fact or a fix: a step was wrong, or a tool behaved in a way the next project will hit. A design that worked once is not a pattern. It waits until a second project needs it.
 
 If unsure, it stays in the project.
+
+Projects cannot see each other, so a design that passes 1 and 2 but has worked only once is parked, not forgotten. With `HATCHERY_META` set, log it in the meta repo under `hatchery`, as its CLAUDE.md says, as a general rule that names no project. At kickoff, read the parked patterns. When a new project uses one, that is its second use: propose the hatchery change and mark the parked idea done. Without a meta repo, it stays in the project.
 
 When a lesson passes:
 
@@ -171,3 +173,4 @@ Only when I name the project and ask. It cannot be undone.
 - Workers Builds free plan: 3,000 build minutes a month, one build at a time. The build machine has no browser and no root, so e2e tests cannot run there.
 - Cloudflare free plan: 5 cron triggers per account (before adding one, count the account's existing triggers with the Cloudflare API and tell me if none is left), 100,000 Worker requests a day, 10 D1 databases.
 - Session network: package registries, GitHub, `*.workers.dev`, `*.$HATCHERY_DOMAIN`, and the network secret hosts.
+- A network secret on one exact host, such as `<name>.<subdomain>.workers.dev`, works (tested 2026-11-08). Sessions call a token-protected Worker without seeing the token.
