@@ -23,6 +23,7 @@ for var in HATCHERY_OWNER HATCHERY_GIT_NAME HATCHERY_GIT_EMAIL; do
 done
 case "${HATCHERY_GIT_EMAIL:-}" in *@users.noreply.github.com) ok "HATCHERY_GIT_EMAIL is a GitHub no-reply address" ;; *) bad "HATCHERY_GIT_EMAIL should be your GitHub no-reply address" ;; esac
 [ -n "${HATCHERY_DOMAIN:-}" ] && ok "HATCHERY_DOMAIN set" || note "HATCHERY_DOMAIN not set: no custom domains"
+[ -n "${HATCHERY_META:-}" ] && ok "HATCHERY_META set" || note "HATCHERY_META not set: no private meta repo"
 [ "${WRANGLER_SEND_METRICS:-}" = false ] && ok "WRANGLER_SEND_METRICS=false" || bad "WRANGLER_SEND_METRICS should be false"
 
 # curl sends no Authorization header here. The proxy adds the network secret.
