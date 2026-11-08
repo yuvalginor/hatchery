@@ -2,6 +2,17 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.3.0 (2026-11-08)
+
+Parked patterns. Touches `base`.
+
+- A design that has worked in only one project is parked in the meta repo, under `hatchery`, instead of being forgotten. Kickoff reads the parked patterns. A project that uses one is its second use, and the session proposes the hatchery change.
+- Hatchery sessions list the meta repo's open ideas for `hatchery`.
+- `check-env.sh` fails when `HATCHERY_DOMAIN` is set but no Cloudflare zone for it is visible. Custom domain deploys fail in that state.
+- A network secret on one exact `workers.dev` host works, so sessions can call a token-protected Worker.
+
+To update a project: replace the lessons line in `CLAUDE.md` with the one in `recipes/base/CLAUDE.md`.
+
 ## 3.2.0 (2026-11-07)
 
 An optional private meta repo. Touches `base`.

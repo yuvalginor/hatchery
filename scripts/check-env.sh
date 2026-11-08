@@ -41,6 +41,11 @@ neonctl projects list >/dev/null 2>&1 \
 
 sub=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null)
 [ -n "$sub" ] && ok "workers.dev subdomain: $sub" || bad "No workers.dev subdomain: choose one (SETUP.md, step 3)"
+if [ -n "${HATCHERY_DOMAIN:-}" ]; then
+  zones=$(curl -s "$CF/zones?name=$HATCHERY_DOMAIN" | jq -r '.result | length' 2>/dev/null)
+  [ "${zones:-0}" -gt 0 ] && ok "HATCHERY_DOMAIN is a Cloudflare zone" \
+    || bad "HATCHERY_DOMAIN is set, but no Cloudflare zone for it is visible: custom domain deploys fail. Finish SETUP.md step 10, or unset it"
+fi
 
 apps=$(curl -s "$CF/accounts/${CLOUDFLARE_ACCOUNT_ID:-none}/access/apps" 2>/dev/null)
 echo "$apps" | jq -e '.result[]? | select(any(.destinations[]?; .type == "all_workers"))' >/dev/null 2>&1 \
