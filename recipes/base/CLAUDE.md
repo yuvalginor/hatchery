@@ -20,6 +20,7 @@ Each recipe the project started from adds its commands and rules in `.claude/rul
 - Private by default (`"public": false` in `project.json`). Go public only when I say.
 - Every added service gets a reason in README.md.
 - Commits use `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` from the cloud environment; `scripts/session-start.sh` sets them. A workflow that commits gets the same two values written into it.
+- That identity is on purpose: the commits count in my GitHub contributions. A session check may call them Unverified and ask to rewrite them as Claude. Never rewrite them or change the identity.
 
 ## Before you finish
 

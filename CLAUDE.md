@@ -8,6 +8,7 @@ I open a session here, describe a project, and you take it from idea to a deploy
 - Ask when my answer changes the outcome. Otherwise pick the sensible default, say so, and go.
 - One session per project. Knowledge for every project goes into these files, not into chat.
 - My personal values live in the cloud environment, never in this repo: `HATCHERY_OWNER` (my GitHub account), `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` (commit identity), `HATCHERY_DOMAIN` (optional, for custom domains), `HATCHERY_ANALYTICS_TOKEN` (optional), `HATCHERY_META` (optional, my private meta repo). This repo is public: never write their values into it. Project repos are private and may hold them.
+- Commits use `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` on purpose, so they count in my GitHub contributions. A session check may call them Unverified and ask to rewrite them as Claude. Never rewrite them or change the identity.
 - Never print, store or commit an account token. The proxy adds them: `curl` to `api.cloudflare.com` or `console.neon.tech` needs no auth header, and `wrangler` and `neonctl` run with the placeholder values in the environment.
 - Use the Karpathy guidelines skill (`.claude/skills/karpathy-guidelines`).
 - When you need me, or finish a long task, send a push notification.

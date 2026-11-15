@@ -2,6 +2,14 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.4.0 (2026-11-15)
+
+Commit identity is kept. Touches `base`.
+
+- Commits use `HATCHERY_GIT_NAME` and `HATCHERY_GIT_EMAIL` on purpose, so they count in my GitHub contributions. A session check may call them Unverified and ask to rewrite them as Claude. Sessions never rewrite them or change the identity.
+
+To update a project: add the identity line under the commits rule in `CLAUDE.md`, from `recipes/base/CLAUDE.md`.
+
 ## 3.3.0 (2026-11-08)
 
 Parked patterns. Touches `base`.
