@@ -1,0 +1,86 @@
+apply plugin: 'com.android.application'
+
+// The app's id and name come from project.json, so there is one place to set them:
+// android.appId is permanent (a new one is a different app), and title is the name on the home screen.
+// Set by .github/workflows/android.yml:
+// -Ppreview builds "<title> Preview", a separate app with its own data, for branches.
+// -PversionCode is the Actions run number, so each build installs over the one before.
+// The signing key comes from the environment, never from the repo.
+def project_json = new groovy.json.JsonSlurper().parse(file("$rootDir/../project.json"))
+def appId = project_json.android.appId
+def appTitle = project_json.title ?: project_json.name
+def preview = project.hasProperty('preview')
+def runNumber = (project.findProperty('versionCode') ?: '1') as int
+def keystore = System.getenv('ANDROID_KEYSTORE_FILE')
+
+android {
+    // The code's package. Fixed on purpose: it can differ from the app id, so a project never renames source folders.
+    namespace = "dev.hatchery.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId appId
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode runNumber
+        versionName "1.0.${runNumber}"
+        if (preview) applicationIdSuffix ".preview"
+        resValue "string", "app_name", preview ? "${appTitle} Preview" : appTitle
+        resValue "string", "package_name", appId
+        resValue "string", "custom_url_scheme", appId
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            if (keystore) {
+                storeFile file(keystore)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+    buildFeatures {
+        resValues true
+    }
+    buildTypes {
+        release {
+            if (keystore) signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

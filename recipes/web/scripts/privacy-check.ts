@@ -7,6 +7,8 @@ import { extname, join, relative } from 'node:path';
 const ALLOWED_EXTENSIONS = new Set([
   '.html', '.js', '.mjs', '.css', '.json', '.webmanifest', '.txt', '.xml', '.svg',
   '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.ico', '.woff', '.woff2', '.wasm',
+  // A zip of the build already scanned here, such as the Android app's live update (android recipe).
+  '.zip',
 ]);
 const ALLOWED_NAMES = new Set(['_headers', '_redirects']);
 const TEXT_EXTENSIONS = new Set(['.html', '.js', '.mjs', '.css', '.json', '.webmanifest', '.txt', '.xml', '.svg', '']);

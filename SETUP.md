@@ -185,7 +185,7 @@ For anyone changing hatchery itself. You do not need these to use it. Send each 
 3. **Schedule, branch 2:** "Add a daily cron to smoke-web that records the date in D1 and shows the last run on the page." It uses one of the account's 5 cron triggers.
 4. **Actions secret** (needs Secrets on `HATCHERY_PAT`): "Set an Actions secret HELLO=world on smoke-web with project-secret, then prove the job sees it by printing its SHA-256 from a workflow." Expect `sha256("world")`.
 5. **Neon, rung 4:** "Create a Neon project for smoke-web and show its row count on the page."
-6. **Android, branch 4:** "Wrap smoke-web with Capacitor and build a debug APK in Actions." Expect an APK artifact you can install.
+6. **Android, branch 4:** "Add the android recipe to smoke-web and build a Preview APK in Actions." Expect a pre-release with an APK you can install. It needs the signing key steps in the recipe.
 7. **Clean up:** "Delete project smoke-web." Then delete the repo by hand.
 
 Not checked on purpose: R2 (payment method), iOS and macOS builds (paid Apple membership, 10x Actions minutes).

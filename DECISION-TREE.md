@@ -40,7 +40,8 @@ flowchart TD
 | 2. Cron Worker, Actions schedule | No recipe yet |
 | 3. Durable Objects, long jobs | No recipe yet |
 | Rungs 1 to 4: Worker route, D1, R2, Neon | No recipe yet |
-| 4. Capacitor, Tauri, hardware | No recipe yet |
+| 4. Capacitor on Android | [android](recipes/android/RECIPE.md), on top of `web`. Add [pwa](recipes/pwa/RECIPE.md) too if the web version is installed as well |
+| 4. Tauri, hardware | No recipe yet |
 
 No recipe yet means: build from the notes below. When a second project needs the same files, turn the tested ones into a recipe.
 
@@ -65,11 +66,26 @@ Add [pwa](recipes/pwa/RECIPE.md) when I will use the app from my phone's home sc
 
 ## 4. Must it run outside a browser?
 
-- Mobile: wrap the web app with Capacitor. Android builds run on Linux runners; I sideload the APK. iOS builds need macOS runners (10x minutes) and an Apple Developer Program membership to install beyond a 7-day test build. That membership is paid: ask first.
+- Mobile: wrap the web app with Capacitor. Android: recipe [android](recipes/android/RECIPE.md). Its builds run on Linux runners; I sideload the APK. iOS builds need macOS runners (10x minutes) and an Apple Developer Program membership to install beyond a 7-day test build. That membership is paid: ask first.
 - Desktop: wrap the web app with Tauri. Build each OS on its own runner with `tauri-apps/tauri-action`. Unsigned builds show OS warnings; signing certificates cost money: ask first.
 - Hardware: try Web Serial, WebUSB or Web Bluetooth in Chrome first. Only if that fails, a local script or desktop tool.
 
-Keep the web code free of platform calls outside `src/platform/`, so wrapping needs no rewrite.
+Keep the web code free of platform calls outside `src/platform.ts` and `src/native/`, so wrapping needs no rewrite.
+
+### Native features on Android
+
+Not recipes: each depends on what the app does. Build them on top of the android recipe, and keep the pure logic in the web code, unit tested, with a thin native binding in `src/native/`.
+
+- **Scheduled notifications.** Capacitor's local-notifications plugin, the official one. Repeating notifications cannot skip a day the user already did the thing, and stay exact, at once. So plan one-off exact notifications for the next 60 days or so, at most 400 (Android allows 500 alarms per app), and plan again on every open, return and change. Give each notification an id that is the same for the same thing on the same day, such as a hash of both, so another part of the app can cancel it without having scheduled it. Exact alarms are a permission the user grants in Android's "Alarms & reminders" setting. Without it notifications still come, maybe a few minutes late: say so in the app.
+- **A home-screen widget.** Jetpack Glance, Google's library, in Kotlin. It sets up Kotlin and Compose in the Android build: use the Kotlin version Capacitor's plugins already build with, so the two never meet. The widget cannot read the web app's data, which lives in the WebView. So the app sends a snapshot to a small Capacitor plugin of its own after every change, on return and when the day turns over. The snapshot holds the next several days, each as it will look if nothing else changes, so the widget can roll to a new day with the app closed. A tap on the widget goes into a queue that the app applies when it opens, through the same function a tap in the app uses.
+  - Read the stored snapshot as state inside the widget's composition, for example from a flow the store updates. Loading it once when the session starts leaves a running widget drawing a stale picture: taps seem dead and app changes never show.
+  - The queue is "set this to done or not", never a toggle, so applying it twice is safe.
+  - Taking the queue clears it on the Android side. The app keeps what it took in its own journal until it has saved, or an app closed in between loses the tick.
+  - Run syncs one at a time. The app comes back to the foreground through several events at once.
+  - The widget follows the app's own theme choice, not only the phone's, so send the choice in the snapshot. Turn off Glance's default pressed highlight, which is a rectangle.
+  - Keep a short activity log in the app. A glitch between a widget, a notification and the app cannot be reproduced on demand.
+- **Export and import.** The app's data lives under its own origin, so a move from a browser-installed copy needs an export from it and an import into the app. Inside the app, export through the share sheet.
+- **Two installs.** A Preview and a Release APK are separate apps with separate data and separate widgets. A mix-up between the two looks like a sync bug.
 
 ### Platform limits
 

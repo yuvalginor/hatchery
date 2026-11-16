@@ -2,6 +2,17 @@
 
 Hatchery conventions, versioned in `VERSION`. Each project records the version it follows, and the recipes it started from, under `hatchery` in its `project.json`. Project sessions show me the entries newer than theirs and ask before updating.
 
+## 3.5.0 (2026-11-16)
+
+An Android recipe. Touches `android` (new) and `web`.
+
+- New recipe `android`, on top of `web`: a Capacitor wrapper, the native project, signed APKs from Actions on a GitHub Release (a separate Preview app for each branch), live updates that need no Capgo account, the back gesture, system bars that follow the page, and export through the share sheet. The app's id and name come from `project.json`.
+- DECISION-TREE.md: branch 4 points to it. A new section, "Native features on Android", writes up scheduled notifications and a home-screen widget as patterns, not recipes, with what went wrong the first time.
+- `web`: the privacy check allows `.zip`, the format of a live update. The e2e tests take `E2E_PORT`, so two checkouts can run them at once.
+- The `recipes` workflow builds a debug APK of a composed `web android` project.
+
+To add Android to an existing project: compose nothing over it. Copy the `android` recipe's files, set `android.appId` in `project.json`, and follow After copying in `recipes/android/RECIPE.md`. To update the web recipe: allow `.zip` in `scripts/privacy-check.ts`, and use the `E2E_PORT` lines from `playwright.config.ts`.
+
 ## 3.4.0 (2026-11-15)
 
 Commit identity is kept. Touches `base`.
