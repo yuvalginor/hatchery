@@ -2,6 +2,15 @@
 
 Choices, assumptions and test results for hatchery itself. Newest first. Project decisions live in each project's DECISIONS.md.
 
+## 2026-11-16: Version 3.5.0, an Android recipe
+
+- **Why now, after one project:** the rule was to wait for a second project. The owner judged Capacitor on Android a general pattern, with native features added as needed, and asked for it.
+- **Capacitor only.** Notifications and a widget stay patterns in DECISION-TREE.md: the notification planner follows an app's schedule model and the widget is app-specific UI, so a recipe would need heavy changes in every project.
+- **The app id lives in `project.json`, the code's package does not move.** `namespace` is fixed at `dev.hatchery.app` and the app id is set in Gradle, so a project renames no folders. The workflow reads the name and title with `jq`.
+- **Recipes still never edit `package.json`.** The recipe ships `scripts/android-deps.sh`, which installs the packages and refreshes the lockfile, instead of a merge feature in `compose.sh`.
+- **The back gesture is a registry,** `setBackLayers` in the web bundle, so the glue in `src/native/` never needs the app's internals and no recipe patches another's files.
+- **CI builds a debug APK** of the composed project, so a Gradle or native change fails in hatchery first. Sessions cannot build it: no Android SDK.
+
 ## 2026-11-07: Version 3.2.0, an optional private meta repo
 
 - **The need:** one place for my project list, ideas per project, and preferences that are mine rather than hatchery's. The 1.2.0 decision kept the registry out of this public repo. That reason stands.

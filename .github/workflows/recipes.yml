@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        stack: [web, web web-storage pwa]
+        stack: [web, web web-storage pwa, web android]
     # Pinned: Playwright's system dependencies are tested against this image.
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -44,5 +44,21 @@ jobs:
         run: |
           git init -q
           npm ci --no-audit --no-fund
+          if [ -f scripts/android-deps.sh ]; then bash scripts/android-deps.sh; fi
           npx playwright install --with-deps chromium
           npm test
+      # The android recipe also has to build: the web build into the app, then a debug APK of the Preview flavour.
+      - uses: actions/setup-java@v5
+        if: contains(matrix.stack, 'android')
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Android debug build
+        if: contains(matrix.stack, 'android')
+        working-directory: ${{ runner.temp }}/project
+        run: |
+          node scripts/android-icons.ts
+          rm -rf dist/app && npx cap sync android
+          cd android && ./gradlew assembleDebug -Ppreview --no-daemon
+          ls -l app/build/outputs/apk/debug/

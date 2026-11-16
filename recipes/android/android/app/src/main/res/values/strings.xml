@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- app_name, package_name and custom_url_scheme come from app/build.gradle, which reads project.json. -->
+<resources>
+</resources>

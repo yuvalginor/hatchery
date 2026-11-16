@@ -8,6 +8,7 @@ Tested project files. A new project starts from `base` plus the recipes DECISION
 | [web](web/RECIPE.md) | Static web app on Cloudflare Workers: Vite, TypeScript, tests, hook, CI, deploy, privacy check, noindex, Access when it is on. | base |
 | [web-storage](web-storage/RECIPE.md) | Versioned IndexedDB storage with export and import. Rung 0. | web |
 | [pwa](pwa/RECIPE.md) | Service worker and manifest: installable, works offline. | web |
+| [android](android/RECIPE.md) | Android app: Capacitor wrapper, signed APKs from Actions, live updates, back gesture, system bars. | web |
 
 ## Compose
 
@@ -23,6 +24,8 @@ Recipes add files. They never patch another recipe's file. Two files merge inste
 
 - `project.json`: a recipe's keys are added. A key that already exists is a conflict.
 - `.gitignore`: a recipe's lines are appended.
+
+Recipes never edit `package.json`: one that needs npm packages ships a script that installs them, such as `scripts/android-deps.sh`, and says so under After copying.
 
 A recipe that depends on others lists them in a `NEEDS` file, one per line. `compose.sh` refuses the list unless each needed recipe comes earlier, so `web pwa` works and `pwa` alone does not. `base` is always first and never listed.
 

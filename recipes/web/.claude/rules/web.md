@@ -3,7 +3,7 @@
 ## Commands
 
 - `npm run dev`: local dev server.
-- `npm test`: typecheck, unit tests, build, e2e on `dist/` under `wrangler dev`, privacy check. The pre-commit hook and CI run it.
+- `npm test`: typecheck, unit tests, build, e2e on `dist/` under `wrangler dev`, privacy check. The pre-commit hook and CI run it. `wrangler dev` listens on 4173; set `E2E_PORT` when another checkout runs its tests at the same time, or each reuses the other's server and tests the wrong code.
 - `npm run deploy`: on a branch, runs the tests and pushes. Everywhere, it waits for Cloudflare's build, then runs read-only `@smoke` tests on the live URL. A push to `main` deploys production. Any other branch gets its own Preview.
 - `npm run icons`: regenerates the icons and `public/og.png` from `assets/icon.svg` and `project.json`.
 
